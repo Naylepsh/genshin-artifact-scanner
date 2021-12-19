@@ -1,3 +1,5 @@
+package Extract
+
 import net.sourceforge.tess4j.Tesseract
 import net.sourceforge.tess4j.util.ImageHelper
 

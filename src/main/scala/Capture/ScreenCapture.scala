@@ -28,5 +28,8 @@ object ScreenCapture {
       s"$filename.$defaultFormat"
   }
 
-  case class RectangleCoordinates(topLeft: Point, bottomRight: Point)
+  case class RectangleCoordinates(topLeft: Point, bottomRight: Point) {
+    val width: Int = bottomRight.x - topLeft.x
+    val height: Int = bottomRight.y - topLeft.y
+  }
 }
