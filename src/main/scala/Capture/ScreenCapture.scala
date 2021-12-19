@@ -1,8 +1,9 @@
+package Capture
+
 import java.awt.image.BufferedImage
 import java.awt.{Point, Rectangle, Robot}
 import java.io.File
 import javax.imageio.ImageIO
-
 
 object ScreenCapture {
   def captureRectangle(coordinates: RectangleCoordinates): BufferedImage = {

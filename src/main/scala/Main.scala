@@ -1,4 +1,5 @@
-import ScreenCapture._
+import Capture.ScreenCapture
+import Capture.ScreenCapture._
 
 import java.awt.Point
 
