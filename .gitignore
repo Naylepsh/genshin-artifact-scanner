@@ -1,0 +1,7 @@
+# IntelliJ stuff
+.bsp/
+.idea/
+null/
+target/
+
+.env
