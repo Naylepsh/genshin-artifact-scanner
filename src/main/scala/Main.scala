@@ -1,5 +1,8 @@
-import Extract.{ArtifactExtractor, TesseractWrapper}
+import Capture.ScreenCapture._
+import Extract.ArtifactImageExtractor.getSubImage
+import Extract._
 
+import java.awt.Point
 import java.io.File
 import javax.imageio.ImageIO
 
@@ -11,10 +14,16 @@ object Main extends App {
   val dataPath = sys.env("TESSDATA")
   val language = "eng"
   val tesseract = TesseractWrapper(dataPath, language)
-  val extractor = ArtifactExtractor(tesseract)
+  val extractor = ArtifactImageExtractor(tesseract)
+
+  //  val coords = RectangleCoordinates(new Point(20, 180), new Point(165, 220)) // stat value coords
+  val coords = RectangleCoordinates(new Point(20, 150), new Point(165, 180)) // stat name coords
 
   val pathToFile = "F:/Code/artifact-helper/screen-capturer/artifact-0.png"
   val image = ImageIO.read(new File(pathToFile))
+  val subImage = getSubImage(image, coords)
+  val mainStat = tesseract.doOCR(subImage)
+  print(mainStat)
 
   val level = extractor.extractLevel(image)
   println(level)
