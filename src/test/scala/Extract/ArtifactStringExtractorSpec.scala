@@ -20,4 +20,8 @@ class ArtifactStringExtractorSpec extends AnyFlatSpec with should.Matchers {
   "Extract stat value" should "extract float-like value" in {
     ArtifactStringExtractor.extractStatValue("12.3%").value === 12.3
   }
+
+  "Extract stat value" should "recognize that there are too many place after decimal" in {
+    ArtifactStringExtractor.extractStatValue("1.234").value shouldBe 1234
+  }
 }

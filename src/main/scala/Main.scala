@@ -22,7 +22,8 @@ object Main extends App {
   val pathToFile = "F:/Code/artifact-helper/screen-capturer/artifact-0.png"
   val image = ImageIO.read(new File(pathToFile))
   val subImage = getSubImage(image, coords)
-  val mainStat = tesseract.doOCR(subImage)
+
+  val mainStat = extractor.extractMainStat(image)
   print(mainStat)
 
   val level = extractor.extractLevel(image)
