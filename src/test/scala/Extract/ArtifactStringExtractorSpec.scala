@@ -30,7 +30,7 @@ class ArtifactStringExtractorSpec extends AnyFlatSpec with should.Matchers {
   }
 
   "Extract sub stats" should "pick up all sub stats (including stats with same names but different types)" in {
-    val stats = List(("Energy Recharge", 11.0f), ("DEF%", 17.9f), ("HP", 1234f), ("HP%", 12.1f))
+    val stats = List(("Energy Recharge%", 11.0f), ("DEF%", 17.9f), ("HP", 1234f), ("HP%", 12.1f))
     val rawData = mkArtifactDescription(stats)
     extractSubStats(rawData).length shouldBe stats.length
   }

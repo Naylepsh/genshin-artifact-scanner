@@ -4,11 +4,12 @@ package Extract
 object ArtifactStringExtractor {
   private val subStats = List(
     "ATK", "ATK%",
-    "CRIT DMG", "CRIT RATE",
+    "CRIT DMG%", "CRIT RATE%",
     "DEF", "DEF%",
     "Elemental Mastery",
-    "Energy Recharge",
-    "HP", "HP%")
+    "Energy Recharge%",
+    "HP", "HP%"
+  )
 
   def extractLevel(string: String): Option[Int] =
     "[0-9]+".r.findFirstIn(string).map(_.toInt)
