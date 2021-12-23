@@ -16,20 +16,21 @@ object ArtifactStringExtractor {
   def extractName(rawData: String): Option[String] =
     "[a-zA-Z ]+".r.findFirstIn(rawData)
 
-  def extractSubStats(rawData: String): List[(String, Float)] =
-    subStats.flatMap(extractSubStat(rawData, _))
+  def extractSubStats(rawData: String): List[(String, Float)] = {
+    val subStatLines = rawData.split("\n")
+    val flatLines = subStatLines.filter(!_.contains("%"))
+    val percentageLines = subStatLines.filter(_.contains("%"))
 
-  def extractSubStat(rawData: String, statName: String): Option[(String, Float)] = {
-    def isPercentageType(artifactLine: String): Boolean = artifactLine.contains("%")
+    val flatSubStats = subStats.filter(!_.contains("%"))
+    val percentageSubStats = subStats.filter(_.contains("%"))
 
-    val matchesArtifactType = if (isPercentageType(statName))
-      isPercentageType _
-    else
-      (artifactLine: String) => !isPercentageType(artifactLine)
+    val matchedFlats = flatSubStats.flatMap(extractSubStat(flatLines))
+    val matchedPercentages = percentageSubStats.flatMap(stat => extractSubStat(percentageLines)(stat.dropRight(1)))
+    matchedFlats ++ matchedPercentages
+  }
 
-    rawData.split("\n")
-      .filter(matchesArtifactType)
-      .find(_.contains(statName.dropRight(1)))
+  private def extractSubStat(subStatLines: Iterable[String])(statName: String): Option[(String, Float)] = {
+    subStatLines.find(_.contains(statName))
       .map(extractFirstStatValue) match {
       case Some(Some(value)) => Some((statName, value))
       case _ => None

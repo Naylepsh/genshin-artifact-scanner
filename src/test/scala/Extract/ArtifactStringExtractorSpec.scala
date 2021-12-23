@@ -29,25 +29,7 @@ class ArtifactStringExtractorSpec extends AnyFlatSpec with should.Matchers {
     extractFirstStatValue("1.234").value shouldBe 1234
   }
 
-  "Extract sub stat" should "pick up all values" in {
-    val stats = List(("Energy Recharge", 11.0f), ("CRIT DMG", 17.9f), ("HP", 1234f), ("ATK", 12f))
-    assertStatsGotExtracted(stats)
-  }
-
-  "Extract sub stat" should "handle both flat stat and % stat of the same name" in {
-    val stats = List(("Energy Recharge", 11.0f), ("DEF%", 17.9f), ("HP", 1234f), ("HP%", 12.1f))
-    assertStatsGotExtracted(stats)
-  }
-
-  def assertStatsGotExtracted(stats: List[(String, Float)]): Unit = {
-    val rawData = mkArtifactDescription(stats)
-    stats.foreach(stat => {
-      val statName = stat._1
-      extractSubStat(rawData, statName).value shouldBe stat
-    })
-  }
-
-  "Extract sub stats" should "pick up all sub stats" in {
+  "Extract sub stats" should "pick up all sub stats (including stats with same names but different types)" in {
     val stats = List(("Energy Recharge", 11.0f), ("DEF%", 17.9f), ("HP", 1234f), ("HP%", 12.1f))
     val rawData = mkArtifactDescription(stats)
     extractSubStats(rawData).length shouldBe stats.length
