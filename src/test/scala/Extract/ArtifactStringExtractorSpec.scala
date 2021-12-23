@@ -31,6 +31,15 @@ class ArtifactStringExtractorSpec extends AnyFlatSpec with should.Matchers {
 
   "Extract stat" should "pick up all values" in {
     val stats = List(("Energy Recharge", 11.0f), ("CRIT DMG", 17.9f), ("HP", 1234f), ("ATK", 12f))
+    assertStatsGotExtracted(stats)
+  }
+
+  "Extract stat" should "handle both flat stat and % stat of the same name" in {
+    val stats = List(("Energy Recharge", 11.0f), ("DEF%", 17.9f), ("HP", 1234f), ("HP%", 12.1f))
+    assertStatsGotExtracted(stats)
+  }
+
+  def assertStatsGotExtracted(stats: List[(String, Float)]): Unit = {
     val rawData = mkArtifactDescription(stats)
     stats.foreach(stat => {
       val statName = stat._1
@@ -41,5 +50,12 @@ class ArtifactStringExtractorSpec extends AnyFlatSpec with should.Matchers {
 
 object ArtifactStringExtractorSpec {
   def mkArtifactDescription(stats: List[(String, Float)]): String =
-    Random.shuffle(stats).map(stat => s"${stat._1}+${stat._2}").mkString("\n")
+    Random.shuffle(stats).map(statToStatString).mkString("\n")
+
+  def statToStatString(stat: (String, Float)): String = {
+    if (stat._1.endsWith("%"))
+      s"${stat._1.dropRight(1)}+${stat._2}%"
+    else
+      s"${stat._1}+${stat._2}"
+  }
 }

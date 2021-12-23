@@ -1,5 +1,7 @@
 package Extract
 
+import scala.util.matching.Regex
+
 
 object ArtifactStringExtractor {
   def extractLevel(string: String): Option[Int] =
@@ -15,10 +17,15 @@ object ArtifactStringExtractor {
     }
   }
 
-  private def extractStatLine(rawData: String, statName: String): Option[String] = {
+  private def extractStatLine(rawData: String, statName: String): Option[String] =
+    mkStatLineRegex(statName).findFirstIn(rawData)
+
+  private def mkStatLineRegex(statName: String): Regex = {
     //noinspection ScalaUnnecessaryParentheses,RedundantBlock
-    val regex = (s"${statName}.*[^\n]").r
-    regex.findFirstIn(rawData)
+    if (statName.endsWith("%"))
+      (s"${statName.dropRight(1)}.*%").r
+    else
+      (s"${statName}.*[^\n]").r
   }
 
   def extractFirstStatValue(rawData: String): Option[Float] = {
