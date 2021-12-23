@@ -1,31 +1,39 @@
 package Extract
 
-import scala.util.matching.Regex
-
 
 object ArtifactStringExtractor {
+  private val subStats = List(
+    "ATK", "ATK%",
+    "CRIT DMG", "CRIT RATE",
+    "DEF", "DEF%",
+    "Elemental Mastery",
+    "Energy Recharge",
+    "HP", "HP%")
+
   def extractLevel(string: String): Option[Int] =
     "[0-9]+".r.findFirstIn(string).map(_.toInt)
 
   def extractName(rawData: String): Option[String] =
     "[a-zA-Z ]+".r.findFirstIn(rawData)
 
-  def extractStat(rawData: String, statName: String): Option[(String, Float)] = {
-    extractStatLine(rawData, statName).map(extractFirstStatValue) match {
+  def extractSubStats(rawData: String): List[(String, Float)] =
+    subStats.flatMap(extractSubStat(rawData, _))
+
+  def extractSubStat(rawData: String, statName: String): Option[(String, Float)] = {
+    def isPercentageType(artifactLine: String): Boolean = artifactLine.contains("%")
+
+    val matchesArtifactType = if (isPercentageType(statName))
+      isPercentageType _
+    else
+      (artifactLine: String) => !isPercentageType(artifactLine)
+
+    rawData.split("\n")
+      .filter(matchesArtifactType)
+      .find(_.contains(statName.dropRight(1)))
+      .map(extractFirstStatValue) match {
       case Some(Some(value)) => Some((statName, value))
       case _ => None
     }
-  }
-
-  private def extractStatLine(rawData: String, statName: String): Option[String] =
-    mkStatLineRegex(statName).findFirstIn(rawData)
-
-  private def mkStatLineRegex(statName: String): Regex = {
-    //noinspection ScalaUnnecessaryParentheses,RedundantBlock
-    if (statName.endsWith("%"))
-      (s"${statName.dropRight(1)}.*%").r
-    else
-      (s"${statName}.*[^\n]").r
   }
 
   def extractFirstStatValue(rawData: String): Option[Float] = {

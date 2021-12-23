@@ -32,6 +32,13 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
       value <- extractRawData(valueImage).map(ArtifactStringExtractor.extractFirstStatValue).map(_.get)
     } yield (name, value)
   }
+
+  def extractSubStats(image: BufferedImage): Try[Map[String, Float]] = {
+    val subStatsImage = getSubImage(image, subStatsCoordinates)
+    extractRawData(subStatsImage)
+      .map(ArtifactStringExtractor.extractSubStats)
+      .map(subStatsListToMap)
+  }
 }
 
 object ArtifactImageExtractor {
@@ -39,7 +46,12 @@ object ArtifactImageExtractor {
   private val setNameCoordinates = RectangleCoordinates(new Point(20, 510), new Point(335, 540))
   private val mainStatValueCoordinates = RectangleCoordinates(new Point(20, 180), new Point(165, 220))
   private val mainStatNameCoordinates = RectangleCoordinates(new Point(20, 150), new Point(165, 180))
+  private val subStatsCoordinates = RectangleCoordinates(new Point(45, 350), new Point(420, 500))
+
 
   def getSubImage(image: BufferedImage, coordinates: RectangleCoordinates): BufferedImage =
     image.getSubimage(coordinates.topLeft.x, coordinates.topLeft.y, coordinates.width, coordinates.height)
+
+  def subStatsListToMap(subStats: List[(String, Float)]): Map[String, Float] =
+    subStats.foldLeft(Map[String, Float]()) { (map, subStat) => map + (subStat._1 -> subStat._2) }
 }

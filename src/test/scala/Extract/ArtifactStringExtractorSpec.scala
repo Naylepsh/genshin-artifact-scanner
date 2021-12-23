@@ -21,20 +21,20 @@ class ArtifactStringExtractorSpec extends AnyFlatSpec with should.Matchers {
     extractFirstStatValue("1,234").value shouldBe 1234
   }
 
-  "Extract first stat value" should "extract float-like value" in {
+  "Extract sub first stat value" should "extract float-like value" in {
     extractFirstStatValue("12.3%").value === 12.3
   }
 
-  "Extract first stat value" should "recognize that there are too many place after decimal" in {
+  "Extract sub first stat value" should "recognize that there are too many places after decimal" in {
     extractFirstStatValue("1.234").value shouldBe 1234
   }
 
-  "Extract stat" should "pick up all values" in {
+  "Extract sub stat" should "pick up all values" in {
     val stats = List(("Energy Recharge", 11.0f), ("CRIT DMG", 17.9f), ("HP", 1234f), ("ATK", 12f))
     assertStatsGotExtracted(stats)
   }
 
-  "Extract stat" should "handle both flat stat and % stat of the same name" in {
+  "Extract sub stat" should "handle both flat stat and % stat of the same name" in {
     val stats = List(("Energy Recharge", 11.0f), ("DEF%", 17.9f), ("HP", 1234f), ("HP%", 12.1f))
     assertStatsGotExtracted(stats)
   }
@@ -43,8 +43,14 @@ class ArtifactStringExtractorSpec extends AnyFlatSpec with should.Matchers {
     val rawData = mkArtifactDescription(stats)
     stats.foreach(stat => {
       val statName = stat._1
-      extractStat(rawData, statName).value shouldBe stat
+      extractSubStat(rawData, statName).value shouldBe stat
     })
+  }
+
+  "Extract sub stats" should "pick up all sub stats" in {
+    val stats = List(("Energy Recharge", 11.0f), ("DEF%", 17.9f), ("HP", 1234f), ("HP%", 12.1f))
+    val rawData = mkArtifactDescription(stats)
+    extractSubStats(rawData).length shouldBe stats.length
   }
 }
 
