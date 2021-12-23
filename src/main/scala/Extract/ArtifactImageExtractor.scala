@@ -15,13 +15,13 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
     extractRawData(levelImage).map(ArtifactStringExtractor.extractLevel).map(_.get)
   }
 
-  private def extractRawData(image: BufferedImage): Try[String] =
-    tesseract.doOCR(image)
-
   def extractSetName(image: BufferedImage): Try[String] = {
     val setNameImage = getSubImage(image, setNameCoordinates)
     extractRawData(setNameImage).map(ArtifactStringExtractor.extractName).map(_.get)
   }
+
+  private def extractRawData(image: BufferedImage): Try[String] =
+    tesseract.doOCR(image)
 
   def extractMainStat(image: BufferedImage): Try[(String, Float)] = {
     val nameImage = getSubImage(image, mainStatNameCoordinates)
@@ -29,7 +29,7 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
 
     for {
       name <- extractRawData(nameImage).map(ArtifactStringExtractor.extractName).map(_.get)
-      value <- extractRawData(valueImage).map(ArtifactStringExtractor.extractStatValue).map(_.get)
+      value <- extractRawData(valueImage).map(ArtifactStringExtractor.extractFirstStatValue).map(_.get)
     } yield (name, value)
   }
 }
