@@ -35,10 +35,24 @@ class ArtifactStringExtractorSpec extends AnyFlatSpec with should.Matchers {
     extractSubStats(rawData).length shouldBe stats.length
   }
 
-  "Extract sub stats" should "handle malformed data (letters instead of numbers)" in {
+  "Extract sub stats" should "handle malformed data (l or t instead of numbers)" in {
     val rawData = "DEF+lt.0%"
-    extractSubStats(rawData).length shouldBe 1
+
+    val subStats = extractSubStats(rawData)
+
+    subStats.length shouldBe 1
+    subStats.head shouldBe("DEF%", 11.0f)
   }
+
+  "Extract sub stats" should "handle malformed data (H instead of numbers)" in {
+    val rawData = "DEF+H.0%"
+
+    val subStats = extractSubStats(rawData)
+
+    subStats.length shouldBe 1
+    subStats.head shouldBe("DEF%", 11.0f)
+  }
+
 
   "Extract sub stats" should "handle malformed separator" in {
     val rawData = "DEFt11.0%"
