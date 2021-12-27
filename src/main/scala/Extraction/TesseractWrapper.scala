@@ -1,4 +1,4 @@
-package Extract
+package Extraction
 
 import net.sourceforge.tess4j.Tesseract
 import net.sourceforge.tess4j.util.ImageHelper

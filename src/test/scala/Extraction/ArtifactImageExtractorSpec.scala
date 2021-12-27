@@ -1,6 +1,6 @@
-package Extract
+package Extraction
 
-import Extract.ArtifactImageExtractorSpec._
+import Extraction.ArtifactImageExtractorSpec._
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec._
 import org.scalatest.matchers._
@@ -26,6 +26,12 @@ class ArtifactImageExtractorSpec extends AnyFlatSpec with should.Matchers {
     val pathToFile = "/artifacts/artifact-0.png"
     val image = getImage(pathToFile)
     extractor.extractMainStat(image).success.value shouldBe("HP", 4780)
+  }
+
+  "Extract rarity" should "extract 5*" in {
+    val pathToFile = "/artifacts/artifact-0.png"
+    val image = getImage(pathToFile)
+    extractor.extractRarity(image) shouldBe 5
   }
 
 }

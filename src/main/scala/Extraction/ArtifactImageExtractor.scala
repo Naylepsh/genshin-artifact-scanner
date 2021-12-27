@@ -1,14 +1,14 @@
-package Extract
+package Extraction
 
 import Capture.ScreenCapture.RectangleCoordinates
 
-import java.awt.Point
 import java.awt.image.BufferedImage
+import java.awt.{Color, Point}
 import scala.util.Try
 
 case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
 
-  import Extract.ArtifactImageExtractor._
+  import Extraction.ArtifactImageExtractor._
 
   def extractLevel(image: BufferedImage): Try[Int] = {
     val levelImage = getSubImage(image, levelCoordinates)
@@ -19,9 +19,6 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
     val setNameImage = getSubImage(image, setNameCoordinates)
     extractRawData(setNameImage).map(ArtifactStringExtractor.extractName).map(_.get)
   }
-
-  private def extractRawData(image: BufferedImage): Try[String] =
-    tesseract.doOCR(image)
 
   def extractMainStat(image: BufferedImage): Try[(String, Float)] = {
     val nameImage = getSubImage(image, mainStatNameCoordinates)
@@ -39,6 +36,12 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
       .map(ArtifactStringExtractor.extractSubStats)
       .map(subStatsListToMap)
   }
+
+  private def extractRawData(image: BufferedImage): Try[String] =
+    tesseract.doOCR(image)
+
+  def extractRarity(image: BufferedImage): Int =
+    rgbToRarity.getOrElse(new Color(image.getRGB(rarityPoint.x, rarityPoint.y)), 1)
 }
 
 object ArtifactImageExtractor {
@@ -47,6 +50,14 @@ object ArtifactImageExtractor {
   private val mainStatValueCoordinates = RectangleCoordinates(new Point(20, 180), new Point(165, 220))
   private val mainStatNameCoordinates = RectangleCoordinates(new Point(20, 150), new Point(165, 180))
   private val subStatsCoordinates = RectangleCoordinates(new Point(45, 350), new Point(420, 500))
+  private val rarityPoint = new Point(10, 10)
+
+  private val rgbToRarity = Map[Color, Int](
+    new Color(188, 105, 50) -> 5,
+    new Color(161, 86, 224) -> 4,
+    new Color(81, 128, 203) -> 3,
+    new Color(42, 143, 114) -> 2
+  )
 
 
   def getSubImage(image: BufferedImage, coordinates: RectangleCoordinates): BufferedImage =
