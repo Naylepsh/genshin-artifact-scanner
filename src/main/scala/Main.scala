@@ -1,5 +1,4 @@
 import Capture.ScreenCapture._
-import Extract.ArtifactImageExtractor.getSubImage
 import Extract._
 
 import java.awt.Point
@@ -24,7 +23,7 @@ object Main extends App {
     println(s"---------------- $i ---------------")
     val pathToFile = s"F:/Code/artifact-helper/screen-capturer/artifact-$i.png"
     val image = ImageIO.read(new File(pathToFile))
-    val subImage = getSubImage(image, coords)
+    //    val subImage = getSubImage(image, coords)
 
     val mainStat = extractor.extractMainStat(image)
     print(mainStat)
@@ -38,11 +37,12 @@ object Main extends App {
     val subStats = extractor.extractSubStats(image)
     println(subStats)
 
-    val result = tesseract.doOCR(subImage)
-    println(result)
+    val rarity = extractor.extractRarity(image)
+    println(rarity)
+
+    //    val result = tesseract.doOCR(subImage)
+    //    println(result)
   }
 
-  //  val result = tesseract.doOCR(image)
-  //  println(result)
   println("Done")
 }

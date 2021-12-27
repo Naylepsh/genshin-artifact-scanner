@@ -28,6 +28,12 @@ class ArtifactImageExtractorSpec extends AnyFlatSpec with should.Matchers {
     extractor.extractMainStat(image).success.value shouldBe("HP", 4780)
   }
 
+  "Extract rarity" should "extract 5*" in {
+    val pathToFile = "/artifacts/artifact-0.png"
+    val image = getImage(pathToFile)
+    extractor.extractRarity(image) shouldBe 5
+  }
+
 }
 
 object ArtifactImageExtractorSpec {
