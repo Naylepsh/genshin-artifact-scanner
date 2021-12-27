@@ -26,7 +26,7 @@ object ArtifactStringExtractor {
     val percentageSubStats = subStats.filter(isPercentageStat)
 
     val matchedFlats = flatSubStats.flatMap(extractSubStat(flatLines))
-    val matchedPercentages = percentageSubStats.flatMap(stat => extractSubStat(percentageLines)(stat.dropRight(1)))
+    val matchedPercentages = percentageSubStats.flatMap(extractSubStat(percentageLines))
     matchedFlats ++ matchedPercentages
   }
 
@@ -38,7 +38,8 @@ object ArtifactStringExtractor {
   }
 
   private def extractSubStat(subStatLines: Iterable[String])(statName: String): Option[(String, Float)] = {
-    subStatLines.find(_.contains(statName))
+    val statSubstring = if (isFlatStat(statName)) statName else statName.dropRight(1)
+    subStatLines.find(_.contains(statSubstring))
       .map(extractFirstStatValue) match {
       case Some(Some(value)) => Some((statName, value))
       case _ => None
@@ -71,7 +72,7 @@ object ArtifactStringExtractor {
   }
 
   private def correctStatValue(value: String): String =
-    value.replaceAll("[tl]", "1")
+    value.replaceAll("[tl]", "1").replaceFirst("H", "11")
 
   private def correctSeparator(statLine: String): String = {
     if (statLine.contains("+"))
