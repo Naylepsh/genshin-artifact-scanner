@@ -31,8 +31,8 @@ object Main extends App {
 
   val setName = extractor.extractSetName(image)
   println(setName)
-  val subStatsCoordinates = RectangleCoordinates(new Point(45, 350), new Point(420, 500))
-  val subStats = tesseract.doOCR(getSubImage(image, subStatsCoordinates))
+
+  val subStats = extractor.extractSubStats(image)
   println(subStats)
 
   //  val result = tesseract.doOCR(image)

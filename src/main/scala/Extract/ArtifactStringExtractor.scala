@@ -4,7 +4,7 @@ package Extract
 object ArtifactStringExtractor {
   private val subStats = List(
     "ATK", "ATK%",
-    "CRIT DMG%", "CRIT RATE%",
+    "CRIT DMG%", "CRIT Rate%",
     "DEF", "DEF%",
     "Elemental Mastery",
     "Energy Recharge%",
@@ -18,16 +18,23 @@ object ArtifactStringExtractor {
     "[a-zA-Z ]+".r.findFirstIn(rawData)
 
   def extractSubStats(rawData: String): List[(String, Float)] = {
-    val subStatLines = rawData.split("\n")
-    val flatLines = subStatLines.filter(!_.contains("%"))
-    val percentageLines = subStatLines.filter(_.contains("%"))
+    val subStatLines = rawData.split("\n").filter(_.nonEmpty).map(correctStatLine)
+    val flatLines = subStatLines.filter(isFlatStat)
+    val percentageLines = subStatLines.filter(isPercentageStat)
 
-    val flatSubStats = subStats.filter(!_.contains("%"))
-    val percentageSubStats = subStats.filter(_.contains("%"))
+    val flatSubStats = subStats.filter(isFlatStat)
+    val percentageSubStats = subStats.filter(isPercentageStat)
 
     val matchedFlats = flatSubStats.flatMap(extractSubStat(flatLines))
     val matchedPercentages = percentageSubStats.flatMap(stat => extractSubStat(percentageLines)(stat.dropRight(1)))
     matchedFlats ++ matchedPercentages
+  }
+
+  def extractFirstStatValue(rawData: String): Option[Float] = {
+    "[0-9]+.?[0-9]*".r.findFirstIn(rawData)
+      .map(_.replaceFirst(",", ""))
+      .map(determineDotMeaning)
+      .map(_.toFloat)
   }
 
   private def extractSubStat(subStatLines: Iterable[String])(statName: String): Option[(String, Float)] = {
@@ -36,13 +43,6 @@ object ArtifactStringExtractor {
       case Some(Some(value)) => Some((statName, value))
       case _ => None
     }
-  }
-
-  def extractFirstStatValue(rawData: String): Option[Float] = {
-    "[0-9]+.?[0-9]*".r.findFirstIn(rawData)
-      .map(_.replaceFirst(",", ""))
-      .map(determineDotMeaning)
-      .map(_.toFloat)
   }
 
   private def determineDotMeaning(numberString: String): String = {
@@ -57,5 +57,29 @@ object ArtifactStringExtractor {
       numberString.replaceFirst("[.]", "")
     else
       numberString
+  }
+
+  private def isPercentageStat(stat: String): Boolean = stat.contains("%")
+
+  private def isFlatStat(stat: String): Boolean = !isPercentageStat(stat)
+
+  private def correctStatLine(statLine: String): String = {
+    val Pattern = "(.*)[+](.*)".r
+    correctSeparator(statLine) match {
+      case Pattern(name, value) => s"$name+${correctStatValue(value)}"
+    }
+  }
+
+  private def correctStatValue(value: String): String =
+    value.replaceAll("[tl]", "1")
+
+  private def correctSeparator(statLine: String): String = {
+    if (statLine.contains("+"))
+      statLine
+    else {
+      val statSubstring = subStats.map(stat => if (isFlatStat(stat)) stat else stat.dropRight(1))
+        .find(statLine.contains(_)).get
+      statLine.replaceFirst(statSubstring + ".", statSubstring + "+")
+    }
   }
 }
