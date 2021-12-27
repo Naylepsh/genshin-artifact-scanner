@@ -1,5 +1,5 @@
 import Capture.ScreenCapture._
-import Extract._
+import Extraction._
 
 import java.awt.Point
 import java.io.File

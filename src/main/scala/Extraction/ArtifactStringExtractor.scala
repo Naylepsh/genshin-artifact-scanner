@@ -1,4 +1,4 @@
-package Extract
+package Extraction
 
 
 object ArtifactStringExtractor {

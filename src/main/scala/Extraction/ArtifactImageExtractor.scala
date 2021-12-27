@@ -1,4 +1,4 @@
-package Extract
+package Extraction
 
 import Capture.ScreenCapture.RectangleCoordinates
 
@@ -8,7 +8,7 @@ import scala.util.Try
 
 case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
 
-  import Extract.ArtifactImageExtractor._
+  import Extraction.ArtifactImageExtractor._
 
   def extractLevel(image: BufferedImage): Try[Int] = {
     val levelImage = getSubImage(image, levelCoordinates)
@@ -19,9 +19,6 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
     val setNameImage = getSubImage(image, setNameCoordinates)
     extractRawData(setNameImage).map(ArtifactStringExtractor.extractName).map(_.get)
   }
-
-  private def extractRawData(image: BufferedImage): Try[String] =
-    tesseract.doOCR(image)
 
   def extractMainStat(image: BufferedImage): Try[(String, Float)] = {
     val nameImage = getSubImage(image, mainStatNameCoordinates)
@@ -39,6 +36,9 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
       .map(ArtifactStringExtractor.extractSubStats)
       .map(subStatsListToMap)
   }
+
+  private def extractRawData(image: BufferedImage): Try[String] =
+    tesseract.doOCR(image)
 
   def extractRarity(image: BufferedImage): Int =
     rgbToRarity.getOrElse(new Color(image.getRGB(rarityPoint.x, rarityPoint.y)), 1)

@@ -1,6 +1,6 @@
-package Extract
+package Extraction
 
-import Extract.ArtifactImageExtractorSpec._
+import Extraction.ArtifactImageExtractorSpec._
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec._
 import org.scalatest.matchers._

@@ -1,7 +1,7 @@
-package Extract
+package Extraction
 
-import Extract.ArtifactStringExtractor._
-import Extract.ArtifactStringExtractorSpec.mkArtifactDescription
+import Extraction.ArtifactStringExtractor._
+import Extraction.ArtifactStringExtractorSpec.mkArtifactDescription
 import org.scalactic.{Equality, TolerantNumerics}
 import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.flatspec._
