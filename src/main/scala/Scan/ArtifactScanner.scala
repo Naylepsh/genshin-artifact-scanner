@@ -16,7 +16,7 @@ case class ArtifactScanner(workDir: String) {
     //    Below is the optimal sequence of scroll amounts, that should hover around the middle of the artifact icon
     //    This has been tested on ~700 artifacts, and ended up being just a tiny bit above the middle.
     val scrollAmounts = 9 :: List.fill(12)(List(10, 10, 10, 9)).flatten
-    scan(100, scrollAmounts)
+    scan(110, scrollAmounts)
   }
 
   @tailrec
