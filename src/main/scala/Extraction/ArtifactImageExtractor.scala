@@ -15,13 +15,13 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
     extractRawData(levelImage).map(ArtifactStringExtractor.extractLevel).map(_.get)
   }
 
-  private def extractRawData(image: BufferedImage): Try[String] =
-    tesseract.doOCR(image)
-
   def extractSetName(image: BufferedImage): Try[String] = {
-    val setNameImage = getSubImage(image, setNameCoordinates)
+    val setNameImage = getSetNameSubImage(image)
     extractRawData(setNameImage).map(ArtifactStringExtractor.extractName).map(_.get)
   }
+
+  private def getSetNameSubImage(image: BufferedImage): BufferedImage =
+    getSubStatsDependantSubImage(subStatsNumberToSetNameCoordinates)(image)
 
   def extractMainStat(image: BufferedImage): Try[(String, Float)] = {
     val nameImage = getSubImage(image, mainStatNameCoordinates)
@@ -40,8 +40,15 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
       .map(subStatsListToMap)
   }
 
-  private def getSubStatsSubImage(image: BufferedImage): BufferedImage = {
-    val coordinates = subStatsCoordinates(extractSubStatsNumber(image))
+  private def extractRawData(image: BufferedImage): Try[String] =
+    tesseract.doOCR(image)
+
+  private def getSubStatsSubImage(image: BufferedImage): BufferedImage =
+    getSubStatsDependantSubImage(subStatsNumberToSubStatsCoordinates)(image)
+
+  private def getSubStatsDependantSubImage(subStatsNumberToCoordinates: Map[Int, RectangleCoordinates])
+                                          (image: BufferedImage): BufferedImage = {
+    val coordinates = subStatsNumberToCoordinates(extractSubStatsNumber(image))
     getSubImage(image, coordinates)
   }
 
@@ -73,11 +80,16 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
 
 object ArtifactImageExtractor {
   private val levelCoordinates = RectangleCoordinates(new Point(30, 310), new Point(80, 340))
-  private val setNameCoordinates = RectangleCoordinates(new Point(20, 510), new Point(335, 540))
+  private val subStatsNumberToSetNameCoordinates = Map(
+    1 -> RectangleCoordinates(new Point(20, 405), new Point(335, 435)),
+    2 -> RectangleCoordinates(new Point(20, 440), new Point(335, 470)),
+    3 -> RectangleCoordinates(new Point(20, 475), new Point(335, 505)),
+    4 -> RectangleCoordinates(new Point(20, 510), new Point(335, 540))
+  )
   private val mainStatValueCoordinates = RectangleCoordinates(new Point(20, 180), new Point(165, 220))
   private val mainStatNameCoordinates = RectangleCoordinates(new Point(20, 150), new Point(165, 180))
   private val rarityPoint = new Point(10, 10)
-  private val subStatsCoordinates = Map(
+  private val subStatsNumberToSubStatsCoordinates = Map(
     1 -> RectangleCoordinates(new Point(45, 350), new Point(420, 395)),
     2 -> RectangleCoordinates(new Point(45, 350), new Point(420, 430)),
     3 -> RectangleCoordinates(new Point(45, 350), new Point(420, 465)),

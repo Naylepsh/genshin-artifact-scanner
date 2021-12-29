@@ -16,10 +16,22 @@ class ArtifactImageExtractorSpec extends AnyFlatSpec with should.Matchers {
     extractor.extractLevel(image).success.value shouldBe 20
   }
 
-  "Extract set name" should "extract exact set name" in {
+  "Extract set name" should "extract the name from 4 sub stats artifact" in {
     val pathToFile = "/artifacts/artifact-0.png"
     val image = getImage(pathToFile)
     extractor.extractSetName(image).success.value shouldBe "Husk of Opulent Dreams"
+  }
+
+  "Extract set name" should "extract the name from 3 sub stats artifact" in {
+    val pathToFile = "/artifacts/5-star-3-stats.png"
+    val image = getImage(pathToFile)
+    extractor.extractSetName(image).success.value shouldBe "Heart of Depth"
+  }
+
+  "Extract set name" should "extract the name from 2 sub stats artifact" in {
+    val pathToFile = "/artifacts/4-star-2-stats.png"
+    val image = getImage(pathToFile)
+    extractor.extractSetName(image).success.value shouldBe "Gambler"
   }
 
   "Extract main stat" should "extract exact stat name and value" in {
