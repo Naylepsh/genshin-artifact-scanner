@@ -15,6 +15,9 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
     extractRawData(levelImage).map(ArtifactStringExtractor.extractLevel).map(_.get)
   }
 
+  private def extractRawData(image: BufferedImage): Try[String] =
+    tesseract.doOCR(image)
+
   def extractSetName(image: BufferedImage): Try[String] = {
     val setNameImage = getSubImage(image, setNameCoordinates)
     extractRawData(setNameImage).map(ArtifactStringExtractor.extractName).map(_.get)
@@ -37,11 +40,30 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
       .map(subStatsListToMap)
   }
 
-  private def extractRawData(image: BufferedImage): Try[String] =
-    tesseract.doOCR(image)
-
   def extractRarity(image: BufferedImage): Int =
     rgbToRarity.getOrElse(new Color(image.getRGB(rarityPoint.x, rarityPoint.y)), 1)
+
+  def extractSubStatsNumber(image: BufferedImage): Int = {
+    val setNameColor = new Color(92, 178, 86)
+    val containsColor = lineContainsColor(image)(setNameColor) _
+    val startX = 40
+    val endX = 50
+    val startY = 450
+    val endY = 530
+    val yDelta = 40
+    val subStatLineOffset = 2
+
+    //    Artifacts are guaranteed at least one sub stat.
+    //    Start looking for set name with the assumption,
+    //    that is has at least 2 sub stats
+    startY.to(endY).by(yDelta).zipWithIndex
+      .find(yAndIndex => containsColor(startX, endX, yAndIndex._1))
+      .map(_._2 + subStatLineOffset)
+      .getOrElse(1)
+  }
+
+  def lineContainsColor(image: BufferedImage)(color: Color)(startX: Int, endX: Int, y: Int): Boolean =
+    startX to endX exists { x => new Color(image.getRGB(x, y)) == color }
 }
 
 object ArtifactImageExtractor {
