@@ -34,14 +34,16 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
   }
 
   def extractSubStats(image: BufferedImage): Try[Map[String, Float]] = {
-    val subStatsImage = getSubImage(image, subStatsCoordinates)
+    val subStatsImage = getSubStatsSubImage(image)
     extractRawData(subStatsImage)
       .map(ArtifactStringExtractor.extractSubStats)
       .map(subStatsListToMap)
   }
 
-  def extractRarity(image: BufferedImage): Int =
-    rgbToRarity.getOrElse(new Color(image.getRGB(rarityPoint.x, rarityPoint.y)), 1)
+  private def getSubStatsSubImage(image: BufferedImage): BufferedImage = {
+    val coordinates = subStatsCoordinates(extractSubStatsNumber(image))
+    getSubImage(image, coordinates)
+  }
 
   def extractSubStatsNumber(image: BufferedImage): Int = {
     val setNameColor = new Color(92, 178, 86)
@@ -64,6 +66,9 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
 
   def lineContainsColor(image: BufferedImage)(color: Color)(startX: Int, endX: Int, y: Int): Boolean =
     startX to endX exists { x => new Color(image.getRGB(x, y)) == color }
+
+  def extractRarity(image: BufferedImage): Int =
+    rgbToRarity.getOrElse(new Color(image.getRGB(rarityPoint.x, rarityPoint.y)), 1)
 }
 
 object ArtifactImageExtractor {
@@ -71,8 +76,13 @@ object ArtifactImageExtractor {
   private val setNameCoordinates = RectangleCoordinates(new Point(20, 510), new Point(335, 540))
   private val mainStatValueCoordinates = RectangleCoordinates(new Point(20, 180), new Point(165, 220))
   private val mainStatNameCoordinates = RectangleCoordinates(new Point(20, 150), new Point(165, 180))
-  private val subStatsCoordinates = RectangleCoordinates(new Point(45, 350), new Point(420, 500))
   private val rarityPoint = new Point(10, 10)
+  private val subStatsCoordinates = Map(
+    1 -> RectangleCoordinates(new Point(45, 350), new Point(420, 395)),
+    2 -> RectangleCoordinates(new Point(45, 350), new Point(420, 430)),
+    3 -> RectangleCoordinates(new Point(45, 350), new Point(420, 465)),
+    4 -> RectangleCoordinates(new Point(45, 350), new Point(420, 500)),
+  )
 
   private val rgbToRarity = Map[Color, Int](
     new Color(188, 105, 50) -> 5,
@@ -80,7 +90,6 @@ object ArtifactImageExtractor {
     new Color(81, 128, 203) -> 3,
     new Color(42, 143, 114) -> 2
   )
-
 
   def getSubImage(image: BufferedImage, coordinates: RectangleCoordinates): BufferedImage =
     image.getSubimage(coordinates.topLeft.x, coordinates.topLeft.y, coordinates.width, coordinates.height)
