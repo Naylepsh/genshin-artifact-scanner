@@ -12,19 +12,28 @@ case class ArtifactScanner(workDir: String) {
 
   val robot = new Robot()
 
-  def scan(): Unit = {
+  def scan(cells: Int): Unit = {
     //    Below is the optimal sequence of scroll amounts, that should hover around the middle of the artifact icon
     //    This has been tested on ~700 artifacts, and ended up being just a tiny bit above the middle.
     val scrollAmounts = 9 :: List.fill(12)(List(10, 10, 10, 9)).flatten
-    scan(110, scrollAmounts)
+    scan(cells, scrollAmounts)
+  }
+
+  def scanItemsNumber(filename: String): Unit = {
+    val image = captureRectangle(itemsNumberCoordinates)
+    saveToFile(image, filename)
   }
 
   @tailrec
-  private def scan(n: Int, scrollAmounts: List[Int]): Unit = {
-    if (n > 0) {
-      scanRow()
+  private def scan(cells: Int, scrollAmounts: List[Int]): Unit = {
+    if (artifactsInRow >= cells && cells > 0) {
+      val filenames = 1 to cells map { _ => createFilename() }
+      scanRow(cells, filenames.toList)
+    } else if (cells > 0) {
+      val filenames = 1 to artifactsInRow map { _ => createFilename() }
+      scanRow(artifactsInRow, filenames.toList)
       moveRowDown(scrollAmounts.head)
-      scan(n - 1, scrollAmounts.tail :+ scrollAmounts.head)
+      scan(cells - artifactsInRow, scrollAmounts.tail :+ scrollAmounts.head)
     }
   }
 
@@ -32,9 +41,8 @@ case class ArtifactScanner(workDir: String) {
     1 to amount foreach { _ => robot.mouseWheel(1) }
   }
 
-  private def scanRow(): Unit = {
-    val filenames = 1 to artifactsInRow map { _ => createFilename() }
-    val artifactPoints = 1 to artifactsInRow map { i =>
+  private def scanRow(cells: Int = artifactsInRow, filenames: List[String]): Unit = {
+    val artifactPoints = 1 to cells map { i =>
       new Point(rowStartingCursorPosition.x + (i - 1) * cursorDeltaX, rowStartingCursorPosition.y)
     }
 
@@ -66,4 +74,5 @@ object ArtifactScanner {
   private val cursorDeltaX = 150
   private val artifactsInRow = 7
   private val artifactCoordinates = RectangleCoordinates(new Point(1295, 120), new Point(1780, 670))
+  private val itemsNumberCoordinates = RectangleCoordinates(new Point(1685, 35), new Point(1740, 60))
 }

@@ -13,31 +13,31 @@ class ArtifactImageExtractorSpec extends AnyFlatSpec with should.Matchers {
   "Extract level" should "extract exact level" in {
     val pathToFile = "/artifacts/artifact-0.png"
     val image = getImage(pathToFile)
-    extractor.extractLevel(image).success.value shouldBe 20
+    extractor.extractLevel(image).success.value shouldBe Some(20)
   }
 
   "Extract set name" should "extract the name from 4 sub stats artifact" in {
     val pathToFile = "/artifacts/artifact-0.png"
     val image = getImage(pathToFile)
-    extractor.extractSetName(image).success.value shouldBe "Husk of Opulent Dreams"
+    extractor.extractSetName(image).success.value shouldBe Some("Husk of Opulent Dreams")
   }
 
   "Extract set name" should "extract the name from 3 sub stats artifact" in {
     val pathToFile = "/artifacts/5-star-3-stats.png"
     val image = getImage(pathToFile)
-    extractor.extractSetName(image).success.value shouldBe "Heart of Depth"
+    extractor.extractSetName(image).success.value shouldBe Some("Heart of Depth")
   }
 
   "Extract set name" should "extract the name from 2 sub stats artifact" in {
     val pathToFile = "/artifacts/4-star-2-stats.png"
     val image = getImage(pathToFile)
-    extractor.extractSetName(image).success.value shouldBe "Gambler"
+    extractor.extractSetName(image).success.value shouldBe Some("Gambler")
   }
 
   "Extract main stat" should "extract exact stat name and value" in {
     val pathToFile = "/artifacts/artifact-0.png"
     val image = getImage(pathToFile)
-    extractor.extractMainStat(image).success.value shouldBe("HP", 4780)
+    extractor.extractMainStat(image).success.value shouldBe Some(("HP", 4780))
   }
 
   "Extract rarity" should "extract 5*" in {
