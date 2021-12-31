@@ -12,8 +12,11 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
 
   def extractLevel(image: BufferedImage): Try[Option[Int]] = {
     val levelImage = getSubImage(image, levelCoordinates)
-    extractRawData(levelImage).map(ArtifactStringExtractor.extractInt)
+    extractInt(levelImage)
   }
+
+  def extractInt(image: BufferedImage): Try[Option[Int]] =
+    extractRawData(image).map(ArtifactStringExtractor.extractInt)
 
   private def extractRawData(image: BufferedImage): Try[String] =
     tesseract.doOCR(image)
@@ -76,10 +79,6 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
 
   def extractRarity(image: BufferedImage): Int =
     rgbToRarity.getOrElse(new Color(image.getRGB(rarityPoint.x, rarityPoint.y)), 1)
-
-  def extractNumberOfCellsToScan(image: BufferedImage): Try[Option[Int]] = {
-    extractRawData(image).map(ArtifactStringExtractor.extractInt)
-  }
 }
 
 object ArtifactImageExtractor {
@@ -99,6 +98,7 @@ object ArtifactImageExtractor {
     3 -> RectangleCoordinates(new Point(45, 350), new Point(420, 465)),
     4 -> RectangleCoordinates(new Point(45, 350), new Point(420, 500)),
   )
+  private val itemsNumberCoordinates = RectangleCoordinates(new Point(1685, 35), new Point(1740, 60))
 
   private val rgbToRarity = Map[Color, Int](
     new Color(188, 105, 50) -> 5,

@@ -19,12 +19,19 @@ case class ArtifactScanner(workDir: String) {
     scan(cells, scrollAmounts)
   }
 
+  def scanItemsNumber(filename: String): Unit = {
+    val image = captureRectangle(itemsNumberCoordinates)
+    saveToFile(image, filename)
+  }
+
   @tailrec
   private def scan(cells: Int, scrollAmounts: List[Int]): Unit = {
-    if (artifactsInRow >= cells && cells > 0)
-      scanRow(cells)
-    else if (cells > 0) {
-      scanRow(artifactsInRow)
+    if (artifactsInRow >= cells && cells > 0) {
+      val filenames = 1 to cells map { _ => createFilename() }
+      scanRow(cells, filenames.toList)
+    } else if (cells > 0) {
+      val filenames = 1 to artifactsInRow map { _ => createFilename() }
+      scanRow(artifactsInRow, filenames.toList)
       moveRowDown(scrollAmounts.head)
       scan(cells - artifactsInRow, scrollAmounts.tail :+ scrollAmounts.head)
     }
@@ -34,8 +41,7 @@ case class ArtifactScanner(workDir: String) {
     1 to amount foreach { _ => robot.mouseWheel(1) }
   }
 
-  private def scanRow(cells: Int = artifactsInRow): Unit = {
-    val filenames = 1 to cells map { _ => createFilename() }
+  private def scanRow(cells: Int = artifactsInRow, filenames: List[String]): Unit = {
     val artifactPoints = 1 to cells map { i =>
       new Point(rowStartingCursorPosition.x + (i - 1) * cursorDeltaX, rowStartingCursorPosition.y)
     }
@@ -68,4 +74,5 @@ object ArtifactScanner {
   private val cursorDeltaX = 150
   private val artifactsInRow = 7
   private val artifactCoordinates = RectangleCoordinates(new Point(1295, 120), new Point(1780, 670))
+  private val itemsNumberCoordinates = RectangleCoordinates(new Point(1685, 35), new Point(1740, 60))
 }
