@@ -11,7 +11,7 @@ object ArtifactStringExtractor {
     "HP", "HP%"
   )
 
-  def extractLevel(string: String): Option[Int] =
+  def extractInt(string: String): Option[Int] =
     "[0-9]+".r.findFirstIn(string).map(_.toInt)
 
   def extractName(rawData: String): Option[String] =

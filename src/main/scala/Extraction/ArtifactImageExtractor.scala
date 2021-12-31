@@ -10,27 +10,30 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
 
   import Extraction.ArtifactImageExtractor._
 
-  def extractLevel(image: BufferedImage): Try[Int] = {
+  def extractLevel(image: BufferedImage): Try[Option[Int]] = {
     val levelImage = getSubImage(image, levelCoordinates)
-    extractRawData(levelImage).map(ArtifactStringExtractor.extractLevel).map(_.get)
+    extractRawData(levelImage).map(ArtifactStringExtractor.extractInt)
   }
 
-  def extractSetName(image: BufferedImage): Try[String] = {
+  private def extractRawData(image: BufferedImage): Try[String] =
+    tesseract.doOCR(image)
+
+  def extractSetName(image: BufferedImage): Try[Option[String]] = {
     val setNameImage = getSetNameSubImage(image)
-    extractRawData(setNameImage).map(ArtifactStringExtractor.extractName).map(_.get)
+    extractRawData(setNameImage).map(ArtifactStringExtractor.extractName)
   }
 
   private def getSetNameSubImage(image: BufferedImage): BufferedImage =
     getSubStatsDependantSubImage(subStatsNumberToSetNameCoordinates)(image)
 
-  def extractMainStat(image: BufferedImage): Try[(String, Float)] = {
+  def extractMainStat(image: BufferedImage): Try[Option[(String, Float)]] = {
     val nameImage = getSubImage(image, mainStatNameCoordinates)
     val valueImage = getSubImage(image, mainStatValueCoordinates)
 
     for {
-      name <- extractRawData(nameImage).map(ArtifactStringExtractor.extractName).map(_.get)
-      value <- extractRawData(valueImage).map(ArtifactStringExtractor.extractFirstStatValue).map(_.get)
-    } yield (name, value)
+      name <- extractRawData(nameImage).map(ArtifactStringExtractor.extractName)
+      value <- extractRawData(valueImage).map(ArtifactStringExtractor.extractFirstStatValue)
+    } yield name zip value
   }
 
   def extractSubStats(image: BufferedImage): Try[Map[String, Float]] = {
@@ -39,9 +42,6 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
       .map(ArtifactStringExtractor.extractSubStats)
       .map(subStatsListToMap)
   }
-
-  private def extractRawData(image: BufferedImage): Try[String] =
-    tesseract.doOCR(image)
 
   private def getSubStatsSubImage(image: BufferedImage): BufferedImage =
     getSubStatsDependantSubImage(subStatsNumberToSubStatsCoordinates)(image)
@@ -76,6 +76,10 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
 
   def extractRarity(image: BufferedImage): Int =
     rgbToRarity.getOrElse(new Color(image.getRGB(rarityPoint.x, rarityPoint.y)), 1)
+
+  def extractNumberOfCellsToScan(image: BufferedImage): Try[Option[Int]] = {
+    extractRawData(image).map(ArtifactStringExtractor.extractInt)
+  }
 }
 
 object ArtifactImageExtractor {
