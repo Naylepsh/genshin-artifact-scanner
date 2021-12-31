@@ -13,7 +13,7 @@ object Main extends App {
 
   val outputDir = sys.env("OUTPUT_DIR")
   val scanner = ArtifactScanner(outputDir)
-  scanner.scan()
+  scanner.scan(770)
 
   println("Done")
 }
