@@ -18,36 +18,16 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
   def extractInt(image: BufferedImage): Try[Option[Int]] =
     extractRawData(image).map(ArtifactStringExtractor.extractInt)
 
-  private def extractRawData(image: BufferedImage): Try[String] =
-    tesseract.doOCR(image)
-
   def extractSetName(image: BufferedImage): Try[Option[String]] = {
     val setNameImage = getSetNameSubImage(image)
     extractRawData(setNameImage).map(ArtifactStringExtractor.extractName)
   }
 
+  private def extractRawData(image: BufferedImage): Try[String] =
+    tesseract.doOCR(image)
+
   private def getSetNameSubImage(image: BufferedImage): BufferedImage =
     getSubStatsDependantSubImage(subStatsNumberToSetNameCoordinates)(image)
-
-  def extractMainStat(image: BufferedImage): Try[Option[(String, Float)]] = {
-    val nameImage = getSubImage(image, mainStatNameCoordinates)
-    val valueImage = getSubImage(image, mainStatValueCoordinates)
-
-    for {
-      name <- extractRawData(nameImage).map(ArtifactStringExtractor.extractName)
-      value <- extractRawData(valueImage).map(ArtifactStringExtractor.extractFirstStatValue)
-    } yield name zip value
-  }
-
-  def extractSubStats(image: BufferedImage): Try[Map[String, Float]] = {
-    val subStatsImage = getSubStatsSubImage(image)
-    extractRawData(subStatsImage)
-      .map(ArtifactStringExtractor.extractSubStats)
-      .map(subStatsListToMap)
-  }
-
-  private def getSubStatsSubImage(image: BufferedImage): BufferedImage =
-    getSubStatsDependantSubImage(subStatsNumberToSubStatsCoordinates)(image)
 
   private def getSubStatsDependantSubImage(subStatsNumberToCoordinates: Map[Int, RectangleCoordinates])
                                           (image: BufferedImage): BufferedImage = {
@@ -77,8 +57,37 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
   def lineContainsColor(image: BufferedImage)(color: Color)(startX: Int, endX: Int, y: Int): Boolean =
     startX to endX exists { x => new Color(image.getRGB(x, y)) == color }
 
+  def extractMainStat(image: BufferedImage): Try[Option[(String, Float)]] = {
+    val nameImage = getSubImage(image, mainStatNameCoordinates)
+    val valueImage = getSubImage(image, mainStatValueCoordinates)
+
+    for {
+      name <- extractRawData(nameImage).map(ArtifactStringExtractor.extractName)
+      value <- extractRawData(valueImage).map(ArtifactStringExtractor.extractFirstStatValue)
+    } yield name zip value
+  }
+
+  def extractSubStats(image: BufferedImage): Try[Map[String, Float]] = {
+    val subStatsImage = getSubStatsSubImage(image)
+    extractRawData(subStatsImage)
+      .map(ArtifactStringExtractor.extractSubStats)
+      .map(subStatsListToMap)
+  }
+
+  private def getSubStatsSubImage(image: BufferedImage): BufferedImage =
+    getSubStatsDependantSubImage(subStatsNumberToSubStatsCoordinates)(image)
+
   def extractRarity(image: BufferedImage): Int =
     rgbToRarity.getOrElse(new Color(image.getRGB(rarityPoint.x, rarityPoint.y)), 1)
+
+  def extractSlot(image: BufferedImage): Try[Option[String]] = {
+    def firstWord(text: String): String = text.split(' ').head
+
+    val slotSubImage = getSubImage(image, slotCoordinates)
+    extractRawData(slotSubImage)
+      .map(ArtifactStringExtractor.extractName)
+      .map(_.map(firstWord))
+  }
 }
 
 object ArtifactImageExtractor {
@@ -89,6 +98,7 @@ object ArtifactImageExtractor {
     3 -> RectangleCoordinates(new Point(20, 475), new Point(335, 505)),
     4 -> RectangleCoordinates(new Point(20, 510), new Point(335, 540))
   )
+  private val slotCoordinates = RectangleCoordinates(new Point(20, 65), new Point(300, 95))
   private val mainStatValueCoordinates = RectangleCoordinates(new Point(20, 180), new Point(165, 220))
   private val mainStatNameCoordinates = RectangleCoordinates(new Point(20, 150), new Point(165, 180))
   private val rarityPoint = new Point(10, 10)
@@ -98,7 +108,6 @@ object ArtifactImageExtractor {
     3 -> RectangleCoordinates(new Point(45, 350), new Point(420, 465)),
     4 -> RectangleCoordinates(new Point(45, 350), new Point(420, 500)),
   )
-  private val itemsNumberCoordinates = RectangleCoordinates(new Point(1685, 35), new Point(1740, 60))
 
   private val rgbToRarity = Map[Color, Int](
     new Color(188, 105, 50) -> 5,
