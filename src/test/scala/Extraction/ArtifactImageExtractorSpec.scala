@@ -1,5 +1,6 @@
 package Extraction
 
+import Artifact.Artifact
 import Extraction.ArtifactImageExtractorSpec._
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec._
@@ -13,31 +14,31 @@ class ArtifactImageExtractorSpec extends AnyFlatSpec with should.Matchers {
   "Extract level" should "extract exact level" in {
     val pathToFile = "/artifacts/5-star-4-stats-flower.png"
     val image = getImage(pathToFile)
-    extractor.extractLevel(image).success.value shouldBe Some(20)
+    extractor.extractLevel(image).success.value shouldBe 20
   }
 
   "Extract set name" should "extract the name from 4 sub stats artifact" in {
     val pathToFile = "/artifacts/5-star-4-stats-flower.png"
     val image = getImage(pathToFile)
-    extractor.extractSetName(image).success.value shouldBe Some("Husk of Opulent Dreams")
+    extractor.extractSetName(image).success.value shouldBe "Husk of Opulent Dreams"
   }
 
   "Extract set name" should "extract the name from 3 sub stats artifact" in {
     val pathToFile = "/artifacts/5-star-3-stats-sands.png"
     val image = getImage(pathToFile)
-    extractor.extractSetName(image).success.value shouldBe Some("Heart of Depth")
+    extractor.extractSetName(image).success.value shouldBe "Heart of Depth"
   }
 
   "Extract set name" should "extract the name from 2 sub stats artifact" in {
     val pathToFile = "/artifacts/4-star-2-stats-plume.png"
     val image = getImage(pathToFile)
-    extractor.extractSetName(image).success.value shouldBe Some("Gambler")
+    extractor.extractSetName(image).success.value shouldBe "Gambler"
   }
 
   "Extract main stat" should "extract exact stat name and value" in {
     val pathToFile = "/artifacts/5-star-4-stats-flower.png"
     val image = getImage(pathToFile)
-    extractor.extractMainStat(image).success.value shouldBe Some(("HP", 4780))
+    extractor.extractMainStat(image).success.value shouldBe("HP", 4780)
   }
 
   "Extract rarity" should "extract 5*" in {
@@ -67,31 +68,48 @@ class ArtifactImageExtractorSpec extends AnyFlatSpec with should.Matchers {
   "Extract slot" should "extract plume" in {
     val pathToFile = "/artifacts/4-star-2-stats-plume.png"
     val image = getImage(pathToFile)
-    extractor.extractSlot(image).success.value shouldBe Some("Plume")
+    extractor.extractSlot(image).success.value shouldBe "Plume"
   }
 
   "Extract slot" should "extract sands" in {
     val pathToFile = "/artifacts/5-star-3-stats-sands.png"
     val image = getImage(pathToFile)
-    extractor.extractSlot(image).success.value shouldBe Some("Sands")
+    extractor.extractSlot(image).success.value shouldBe "Sands"
   }
 
   "Extract slot" should "extract flower" in {
     val pathToFile = "/artifacts/5-star-4-stats-flower.png"
     val image = getImage(pathToFile)
-    extractor.extractSlot(image).success.value shouldBe Some("Flower")
+    extractor.extractSlot(image).success.value shouldBe "Flower"
   }
 
   "Extract slot" should "extract goblet" in {
     val pathToFile = "/artifacts/5-star-4-stats-goblet.png"
     val image = getImage(pathToFile)
-    extractor.extractSlot(image).success.value shouldBe Some("Goblet")
+    extractor.extractSlot(image).success.value shouldBe "Goblet"
   }
 
   "Extract slot" should "extract circlet" in {
     val pathToFile = "/artifacts/5-star-4-stats-circlet.png"
     val image = getImage(pathToFile)
-    extractor.extractSlot(image).success.value shouldBe Some("Circlet")
+    extractor.extractSlot(image).success.value shouldBe "Circlet"
+  }
+
+  "Extract artifact" should "extract all artifact data from a valid image" in {
+    val pathToFile = "/artifacts/5-star-4-stats-goblet.png"
+    val image = getImage(pathToFile)
+
+    val artifact = extractor.extractArtifact(image)
+
+    val expectedArtifact = Artifact(setName = "Lavawalker", slot = "Goblet", level = 4,
+      mainStat = ("Electro DMG Bonus", 14.9f), subStats = Map(
+        "HP" -> 269,
+        "DEF" -> 19,
+        "CRIT DMG%" -> 7.0f,
+        "Elemental Mastery" -> 16
+      )
+    )
+    artifact.success.value shouldBe expectedArtifact
   }
 }
 
