@@ -24,7 +24,7 @@ object Main extends App {
   //  scrolling down to the last 35 artifacts doesn't work.
   //  Most likely it's only going to be fodder there, so don't bother for now
   val artifactsToSkip = 35
-  scanner.scan(cells.get.get - artifactsToSkip)
+  scanner.scan(cells.get - artifactsToSkip)
 
   println("Done")
 }
