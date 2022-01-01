@@ -78,8 +78,8 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
     //    Start looking for set name with the assumption,
     //    that is has at least 2 sub stats
     startY.to(endY).by(yDelta).zipWithIndex
-      .find(yAndIndex => containsColor(startX, endX, yAndIndex._1))
-      .map(_._2 + subStatLineOffset)
+      .find { case (y, _) => containsColor(startX, endX, y) }
+      .map { case (_, index) => index + subStatLineOffset }
       .getOrElse(1)
   }
 
@@ -142,5 +142,5 @@ object ArtifactImageExtractor {
     image.getSubimage(coordinates.topLeft.x, coordinates.topLeft.y, coordinates.width, coordinates.height)
 
   def subStatsListToMap(subStats: List[(String, Float)]): Map[String, Float] =
-    subStats.foldLeft(Map[String, Float]()) { (map, subStat) => map + (subStat._1 -> subStat._2) }
+    subStats.foldLeft(Map[String, Float]())(_ + _)
 }
