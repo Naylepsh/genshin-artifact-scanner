@@ -1,5 +1,6 @@
 package Extraction
 
+import Artifact.Artifact
 import Extraction.ArtifactImageExtractorSpec._
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec._
@@ -92,6 +93,23 @@ class ArtifactImageExtractorSpec extends AnyFlatSpec with should.Matchers {
     val pathToFile = "/artifacts/5-star-4-stats-circlet.png"
     val image = getImage(pathToFile)
     extractor.extractSlot(image).success.value shouldBe "Circlet"
+  }
+
+  "Extract artifact" should "extract all artifact data from a valid image" in {
+    val pathToFile = "/artifacts/5-star-4-stats-goblet.png"
+    val image = getImage(pathToFile)
+
+    val artifact = extractor.extractArtifact(image)
+
+    val expectedArtifact = Artifact(setName = "Lavawalker", slot = "Goblet", level = 4,
+      mainStat = ("Electro DMG Bonus", 14.9f), subStats = Map(
+        "HP" -> 269,
+        "DEF" -> 19,
+        "CRIT DMG%" -> 7.0f,
+        "Elemental Mastery" -> 16
+      )
+    )
+    artifact.success.value shouldBe expectedArtifact
   }
 }
 

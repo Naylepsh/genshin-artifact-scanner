@@ -1,5 +1,6 @@
 package Extraction
 
+import Artifact.Artifact
 import Capture.ScreenCapture.RectangleCoordinates
 
 import java.awt.image.BufferedImage
@@ -10,27 +11,23 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
 
   import Extraction.ArtifactImageExtractor._
 
-  def extractArtifact(image: BufferedImage): Unit = {
-    /**
-     * If any tries failed -> return that try's failure
-     * If any options are none -> return failure that x is missing
-     */
-    val result = for {
+  def extractArtifact(image: BufferedImage): Try[Artifact] = {
+    for {
       level <- extractLevel(image)
       slot <- extractSlot(image)
       mainStat <- extractMainStat(image)
       subStats <- extractSubStats(image)
       setName <- extractSetName(image)
-    } yield (level, slot, mainStat, subStats, setName)
+    } yield Artifact(setName, slot, level, mainStat, subStats)
   }
 
-  def extractLevel(image: BufferedImage): Try[Int] = {
-    val levelImage = getSubImage(image, levelCoordinates)
-    extractInt(levelImage)
-  }
+  def extractLevel(image: BufferedImage): Try[Int] =
+    extractInt(getSubImage(image, levelCoordinates))
 
   def extractInt(image: BufferedImage): Try[Int] = {
-    val result = extractRawData(image).map(ArtifactStringExtractor.extractInt)
+    val result = extractRawData(image)
+      .map(ArtifactStringExtractor.correctNumericValue)
+      .map(ArtifactStringExtractor.extractInt)
     tryOptToTry(new RuntimeException("Could not detect any numeric value"))(result)
   }
 
@@ -125,13 +122,13 @@ object ArtifactImageExtractor {
   )
   private val slotCoordinates = RectangleCoordinates(new Point(20, 65), new Point(300, 95))
   private val mainStatValueCoordinates = RectangleCoordinates(new Point(20, 180), new Point(165, 220))
-  private val mainStatNameCoordinates = RectangleCoordinates(new Point(20, 150), new Point(165, 180))
+  private val mainStatNameCoordinates = RectangleCoordinates(new Point(20, 150), new Point(250, 180))
   private val rarityPoint = new Point(10, 10)
   private val subStatsNumberToSubStatsCoordinates = Map(
-    1 -> RectangleCoordinates(new Point(45, 350), new Point(420, 395)),
+    1 -> RectangleCoordinates(new Point(45, 350), new Point(420, 400)),
     2 -> RectangleCoordinates(new Point(45, 350), new Point(420, 430)),
-    3 -> RectangleCoordinates(new Point(45, 350), new Point(420, 465)),
-    4 -> RectangleCoordinates(new Point(45, 350), new Point(420, 500)),
+    3 -> RectangleCoordinates(new Point(45, 350), new Point(420, 470)),
+    4 -> RectangleCoordinates(new Point(45, 350), new Point(420, 510)),
   )
 
   private val rgbToRarity = Map[Color, Int](

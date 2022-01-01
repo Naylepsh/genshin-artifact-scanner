@@ -14,8 +14,19 @@ object ArtifactStringExtractor {
   def extractInt(string: String): Option[Int] =
     "[0-9]+".r.findFirstIn(string).map(_.toInt)
 
+  def correctNumericValue(value: String): String = {
+    /**
+     * Sometimes values that should had been fully numeric
+     * end up having some of their characters mistakenly identified as letters
+     */
+    value
+      .replaceAll("[tl]", "1")
+      .replaceAll("[a]", "4")
+      .replaceFirst("H", "11")
+  }
+
   def extractName(rawData: String): Option[String] =
-    "[a-zA-Z ]+".r.findFirstIn(rawData)
+    "[a-zA-Z ]+".r.findFirstIn(rawData).map(_.trim)
 
   def extractSubStats(rawData: String): List[(String, Float)] = {
     val subStatLines = rawData.split("\n").filter(_.nonEmpty).map(correctStatLine)
@@ -67,14 +78,15 @@ object ArtifactStringExtractor {
   private def correctStatLine(statLine: String): String = {
     val Pattern = "(.*)[+](.*)".r
     correctSeparator(statLine) match {
-      case Pattern(name, value) => s"$name+${correctStatValue(value)}"
+      case Pattern(name, value) => s"$name+${correctNumericValue(value)}"
     }
   }
 
-  private def correctStatValue(value: String): String =
-    value.replaceAll("[tl]", "1").replaceFirst("H", "11")
-
   private def correctSeparator(statLine: String): String = {
+    /**
+     * Sub stat name and value are separated by '+', like: HP+123
+     * However, sometimes that '+' gets mistakenly identified as 't' (or possibly some other chars)
+     */
     if (statLine.contains("+"))
       statLine
     else {
