@@ -4,6 +4,7 @@ import Artifact.Artifact
 import Extraction.ArtifactFromImageExtractor
 import akka.actor.{Actor, Props}
 
+import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 import scala.util.{Failure, Success, Try}
@@ -14,18 +15,22 @@ class ArtifactExtractorActor(extractor: ArtifactFromImageExtractor) extends Acto
 
   override def receive: Receive = {
     case ExtractArtifact(source) =>
-      val artifactTry = for {
-        image <- Try {
-          ImageIO.read(new File(source))
-        }
-        artifact <- extractor.extractArtifact(image)
-      } yield artifact
-
-      val message = artifactTry match {
+      val message = extractArtifact(source) match {
         case Success(artifact) => ArtifactExtractionSuccess(artifact)
         case Failure(exception) => ArtifactExtractionFailure(exception)
       }
       sender() ! message
+  }
+
+  private def extractArtifact(source: String) = {
+    for {
+      image <- openImage(source)
+      artifact <- extractor.extractArtifact(image)
+    } yield artifact
+  }
+
+  private def openImage(source: String): Try[BufferedImage] = Try {
+    ImageIO.read(new File(source))
   }
 }
 
