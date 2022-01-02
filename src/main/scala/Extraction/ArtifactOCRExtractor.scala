@@ -7,9 +7,10 @@ import java.awt.image.BufferedImage
 import java.awt.{Color, Point}
 import scala.util.{Failure, Success, Try}
 
-case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
 
-  import Extraction.ArtifactImageExtractor._
+case class ArtifactOCRExtractor(tesseract: TesseractWrapper) extends ArtifactFromImageExtractor {
+
+  import Extraction.ArtifactOCRExtractor._
 
   def extractArtifact(image: BufferedImage): Try[Artifact] = {
     for {
@@ -112,7 +113,7 @@ case class ArtifactImageExtractor(tesseract: TesseractWrapper) {
     getSubStatsDependantSubImage(subStatsNumberToSubStatsCoordinates)(image)
 }
 
-object ArtifactImageExtractor {
+object ArtifactOCRExtractor {
   private val levelCoordinates = RectangleCoordinates(new Point(30, 310), new Point(80, 340))
   private val subStatsNumberToSetNameCoordinates = Map(
     1 -> RectangleCoordinates(new Point(20, 405), new Point(335, 435)),

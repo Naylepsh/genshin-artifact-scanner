@@ -1,7 +1,7 @@
 package Extraction
 
 import Artifact.Artifact
-import Extraction.ArtifactImageExtractorSpec._
+import Extraction.ArtifactFromImageExtractorSpec._
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec._
 import org.scalatest.matchers._
@@ -9,7 +9,7 @@ import org.scalatest.matchers._
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 
-class ArtifactImageExtractorSpec extends AnyFlatSpec with should.Matchers {
+class ArtifactFromImageExtractorSpec extends AnyFlatSpec with should.Matchers {
 
   "Extract level" should "extract exact level" in {
     val pathToFile = "/artifacts/5-star-4-stats-flower.png"
@@ -113,11 +113,11 @@ class ArtifactImageExtractorSpec extends AnyFlatSpec with should.Matchers {
   }
 }
 
-object ArtifactImageExtractorSpec {
+object ArtifactFromImageExtractorSpec {
   val dataPath: String = sys.env("TESSDATA")
   val language = "eng"
   val tesseract: TesseractWrapper = TesseractWrapper(dataPath, language)
-  val extractor: ArtifactImageExtractor = ArtifactImageExtractor(tesseract)
+  val extractor: ArtifactOCRExtractor = ArtifactOCRExtractor(tesseract)
 
   def getImage(pathToImage: String): BufferedImage =
     ImageIO.read(getClass.getResourceAsStream(pathToImage))

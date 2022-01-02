@@ -8,7 +8,7 @@ object Main extends App {
   val dataPath = sys.env("TESSDATA")
   val language = "eng"
   val tesseract = TesseractWrapper(dataPath, language)
-  val extractor = ArtifactImageExtractor(tesseract)
+  val extractor = ArtifactOCRExtractor(tesseract)
   val outputDir = sys.env("OUTPUT_DIR")
   val scanner = ArtifactScanner(outputDir)
   val itemsNumberFilename = s"$outputDir/n.png"
@@ -26,6 +26,7 @@ object Main extends App {
     val result = tesseract.doOCR(subImage)
     println(result)
   }
+
   scanner.scan(cells.get - artifactsToSkip)
 
   println("Done")
