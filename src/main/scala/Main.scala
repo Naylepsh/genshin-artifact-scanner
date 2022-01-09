@@ -27,7 +27,5 @@ object Main extends App {
     println(result)
   }
 
-  scanner.scan(cells.get - artifactsToSkip)
-
   println("Done")
 }

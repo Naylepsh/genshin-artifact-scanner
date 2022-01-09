@@ -8,7 +8,7 @@ import java.awt.{Color, Point}
 import scala.util.{Failure, Success, Try}
 
 
-case class ArtifactOCRExtractor(tesseract: TesseractWrapper) extends ArtifactFromImageExtractor {
+case class ArtifactOCRExtractor(tesseract: TesseractWrapper) extends ArtifactFromImageExtractable {
 
   import Extraction.ArtifactOCRExtractor._
 

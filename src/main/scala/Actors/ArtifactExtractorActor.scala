@@ -1,7 +1,7 @@
 package Actors
 
 import Artifact.Artifact
-import Extraction.ArtifactFromImageExtractor
+import Extraction.ArtifactFromImageExtractable
 import akka.actor.{Actor, Props}
 
 import java.awt.image.BufferedImage
@@ -9,7 +9,7 @@ import java.io.File
 import javax.imageio.ImageIO
 import scala.util.{Failure, Success, Try}
 
-class ArtifactExtractorActor(extractor: ArtifactFromImageExtractor) extends Actor {
+class ArtifactExtractorActor(extractor: ArtifactFromImageExtractable) extends Actor {
 
   import ArtifactExtractorActor._
 
@@ -35,7 +35,7 @@ class ArtifactExtractorActor(extractor: ArtifactFromImageExtractor) extends Acto
 }
 
 object ArtifactExtractorActor {
-  def props(extractor: ArtifactFromImageExtractor): Props = Props(new ArtifactExtractorActor(extractor))
+  def props(extractor: ArtifactFromImageExtractable): Props = Props(new ArtifactExtractorActor(extractor))
 
   case class ExtractArtifact(source: String)
 

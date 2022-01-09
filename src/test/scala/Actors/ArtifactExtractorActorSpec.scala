@@ -2,7 +2,7 @@ package Actors
 
 import Actors.ArtifactExtractorActor.{ArtifactExtractionFailure, ArtifactExtractionSuccess, ExtractArtifact}
 import Artifact.Artifact
-import Extraction.ArtifactFromImageExtractor
+import Extraction.ArtifactFromImageExtractable
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.BeforeAndAfterAll
@@ -60,11 +60,11 @@ class ArtifactExtractorActorSpec extends TestKit(ActorSystem("ArtifactExtractorA
 object ArtifactExtractorActorSpec {
   val pathToExistingArtifact: String = getClass.getResource("/artifacts/4-star-2-stats-plume.png").getPath
 
-  case class FailingExtractor(error: Throwable) extends ArtifactFromImageExtractor {
+  case class FailingExtractor(error: Throwable) extends ArtifactFromImageExtractable {
     override def extractArtifact(image: BufferedImage): Try[Artifact] = Failure(error)
   }
 
-  case class SucceedingExtractor(artifact: Artifact) extends ArtifactFromImageExtractor {
+  case class SucceedingExtractor(artifact: Artifact) extends ArtifactFromImageExtractable {
     override def extractArtifact(image: BufferedImage): Try[Artifact] = Success(artifact)
   }
 }
