@@ -19,6 +19,7 @@ class ArtifactExtractorActor(extractor: ArtifactFromImageExtractable) extends Ac
       }
       sender() ! message
   }
+
 }
 
 object ArtifactExtractorActor {

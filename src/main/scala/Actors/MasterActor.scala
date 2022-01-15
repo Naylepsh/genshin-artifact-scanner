@@ -21,7 +21,7 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
 
   private val scannerActor = context.actorOf(ArtifactScannerActor.props(scanner))
   private val itemsNumberCoordinates = RectangleCoordinates(new Point(1685, 35), new Point(1740, 60))
-  private val router = setupRouter()
+  private val extractorRouter = setupExtractorRouter()
 
   override def receive: Receive = {
     /**
@@ -38,7 +38,7 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
 
   def receiveWithResults(artifacts: List[Artifact], artifactsExpected: Int): Receive = {
     case ArtifactScanned(image) =>
-      router ! ExtractArtifact(image)
+      extractorRouter ! ExtractArtifact(image)
     case ArtifactExtractionSuccess(artifact) =>
       log.info(s"${artifactsExpected - 1} artifacts left to extract.")
       context.become(receiveWithResults(artifact :: artifacts, artifactsExpected - 1))
@@ -50,7 +50,7 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
       log.info("Scanning Complete") // This doesn't mean that the extraction is complete though
   }
 
-  private def setupRouter(): ActorRef = {
+  private def setupExtractorRouter(): ActorRef = {
     val extractorActors = extractors.zipWithIndex.map {
       case (extractor, i) =>
         context.actorOf(ArtifactExtractorActor.props(extractor), s"extractor_$i")
