@@ -1,6 +1,7 @@
 package Actors
 
 import Actors.ArtifactExtractorActor.{ArtifactExtractionFailure, ArtifactExtractionSuccess, ExtractArtifact}
+import Actors.Common.{openImage, pathToExistingArtifact}
 import Artifact.Artifact
 import Extraction.ArtifactFromImageExtractable
 import akka.actor.ActorSystem
@@ -22,22 +23,12 @@ class ArtifactExtractorActorSpec extends TestKit(ActorSystem("ArtifactExtractorA
 
   "Artifact extractor" should {
     import ArtifactExtractorActorSpec._
-    "send back file opening failure" in {
-      val error = new RuntimeException
-      val extractor = FailingExtractor(error)
-      val actor = system.actorOf(ArtifactExtractorActor.props(extractor))
-
-      actor ! ExtractArtifact("/non-existent-directory/non-existent-file.png")
-
-      expectMsgType[ArtifactExtractionFailure]
-    }
-
     "send back artifact extraction failure" in {
       val error = new RuntimeException
       val extractor = FailingExtractor(error)
       val actor = system.actorOf(ArtifactExtractorActor.props(extractor))
 
-      actor ! ExtractArtifact(pathToExistingArtifact)
+      openImage(pathToExistingArtifact).map(actor ! ExtractArtifact(_))
 
       expectMsg(ArtifactExtractionFailure(error))
     }
@@ -50,7 +41,7 @@ class ArtifactExtractorActorSpec extends TestKit(ActorSystem("ArtifactExtractorA
       val extractor = SucceedingExtractor(artifact)
       val actor = system.actorOf(ArtifactExtractorActor.props(extractor))
 
-      actor ! ExtractArtifact(pathToExistingArtifact)
+      openImage(pathToExistingArtifact).map(actor ! ExtractArtifact(_))
 
       expectMsg(ArtifactExtractionSuccess(artifact))
     }
@@ -58,8 +49,6 @@ class ArtifactExtractorActorSpec extends TestKit(ActorSystem("ArtifactExtractorA
 }
 
 object ArtifactExtractorActorSpec {
-  val pathToExistingArtifact: String = getClass.getResource("/artifacts/4-star-2-stats-plume.png").getPath
-
   case class FailingExtractor(error: Throwable) extends ArtifactFromImageExtractable {
     override def extractArtifact(image: BufferedImage): Try[Artifact] = Failure(error)
   }

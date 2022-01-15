@@ -19,7 +19,7 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
   import ArtifactScannerActor._
   import MasterActor._
 
-  private val scannerActor = context.actorOf(ArtifactScannerActor.props(scanner, sys.env("OUTPUT_DIR")))
+  private val scannerActor = context.actorOf(ArtifactScannerActor.props(scanner))
   private val itemsNumberCoordinates = RectangleCoordinates(new Point(1685, 35), new Point(1740, 60))
   private val router = setupRouter()
 
@@ -37,8 +37,8 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
   }
 
   def receiveWithResults(artifacts: List[Artifact], artifactsExpected: Int): Receive = {
-    case ArtifactScanned(filename) =>
-      router ! ExtractArtifact(filename)
+    case ArtifactScanned(image) =>
+      router ! ExtractArtifact(image)
     case ArtifactExtractionSuccess(artifact) =>
       log.info(s"${artifactsExpected - 1} artifacts left to extract.")
       context.become(receiveWithResults(artifact :: artifacts, artifactsExpected - 1))

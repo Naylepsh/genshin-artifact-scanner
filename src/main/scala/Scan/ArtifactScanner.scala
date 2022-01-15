@@ -3,6 +3,7 @@ package Scan
 import Capture.ScreenCapture.{RectangleCoordinates, captureRectangle, saveToFile}
 
 import java.awt.event.InputEvent.BUTTON1_DOWN_MASK
+import java.awt.image.BufferedImage
 import java.awt.{Point, Robot}
 import scala.language.postfixOps
 
@@ -22,20 +23,17 @@ case class ArtifactScanner(workDir: String) extends ArtifactScannable {
     1 to amount foreach { _ => robot.mouseWheel(1) }
   }
 
-  def scanRow(cells: Int = artifactsInRow, filenames: List[String]): Unit = {
-    require(filenames.length == cells)
-
+  def scanRow(cells: Int = artifactsInRow): List[BufferedImage] = {
     val artifactPoints = 1 to cells map { i =>
       new Point(rowStartingCursorPosition.x + (i - 1) * cursorDeltaX, rowStartingCursorPosition.y)
     }
 
-    filenames zip artifactPoints foreach { x => scanArtifact(x._1)(x._2) }
+    artifactPoints.map(scanArtifact).toList
   }
 
-  private def scanArtifact(filename: String)(point: Point): Unit = {
+  private def scanArtifact(point: Point): BufferedImage = {
     click(point)
-    val image = captureRectangle(artifactCoordinates)
-    saveToFile(image, filename)
+    captureRectangle(artifactCoordinates)
   }
 
   private def click(point: Point): Unit = {
