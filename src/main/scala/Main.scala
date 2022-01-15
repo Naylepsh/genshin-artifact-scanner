@@ -39,7 +39,11 @@ object Main extends App {
 
   def withActor(): Unit = {
     val system = ActorSystem("GenshinArtifactScanner")
-    val master = system.actorOf(MasterActor.props(scanner, extractor))
+    val extractors = for (_ <- 1 to 20) yield {
+      val tesseract = TesseractWrapper(dataPath, language)
+      ArtifactOCRExtractor(tesseract)
+    }
+    val master = system.actorOf(MasterActor.props(scanner, extractors.toList))
 
     master ! Start
   }

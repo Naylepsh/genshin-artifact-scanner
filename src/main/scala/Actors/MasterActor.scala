@@ -5,22 +5,23 @@ import Capture.ScreenCapture
 import Capture.ScreenCapture.RectangleCoordinates
 import Extraction.{ArtifactFromImageExtractable, NumberExtractable}
 import Scan.ArtifactScannable
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.routing.RoundRobinGroup
 
 import java.awt.Point
 import java.awt.image.BufferedImage
 import scala.util.Try
 
-class MasterActor(scanner: ArtifactScannable, extractor: ArtifactFromImageExtractable with NumberExtractable)
+class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImageExtractable with NumberExtractable])
   extends Actor with ActorLogging {
 
   import ArtifactExtractorActor._
   import ArtifactScannerActor._
   import MasterActor._
 
-  private val extractorActor = context.actorOf(ArtifactExtractorActor.props(extractor))
   private val scannerActor = context.actorOf(ArtifactScannerActor.props(scanner, sys.env("OUTPUT_DIR")))
   private val itemsNumberCoordinates = RectangleCoordinates(new Point(1685, 35), new Point(1740, 60))
+  private val router = setupRouter()
 
   override def receive: Receive = {
     /**
@@ -28,16 +29,16 @@ class MasterActor(scanner: ArtifactScannable, extractor: ArtifactFromImageExtrac
      * In such cases simply putting the message back on the queue hoping that the context changes before it arrives
      * should do the trick.
      *
-     * Something like `case other: ArtifactScanned => self ! other` would be cleaner, but the compiler complains.
+     * Something like `case other: ArtifactScanned | ScanningComplete => self ! other` would be cleaner,
+     * but the compiler complains.
      */
     case Start => start()
-    case ArtifactScanned(filename) => putBackOnQueue(ArtifactScanned(filename))
     case other => putBackOnQueue(other)
   }
 
   def receiveWithResults(artifacts: List[Artifact], artifactsExpected: Int): Receive = {
     case ArtifactScanned(filename) =>
-      extractorActor ! ExtractArtifact(filename)
+      router ! ExtractArtifact(filename)
     case ArtifactExtractionSuccess(artifact) =>
       log.info(s"${artifactsExpected - 1} artifacts left to extract.")
       context.become(receiveWithResults(artifact :: artifacts, artifactsExpected - 1))
@@ -46,7 +47,15 @@ class MasterActor(scanner: ArtifactScannable, extractor: ArtifactFromImageExtrac
       log.info(s"${artifactsExpected - 1} artifacts left to extract.")
       context.become(receiveWithResults(artifacts, artifactsExpected - 1))
     case ScanningComplete =>
-      log.info("Done")
+      log.info("Scanning Complete") // This doesn't mean that the extraction is complete though
+  }
+
+  private def setupRouter(): ActorRef = {
+    val extractorActors = extractors.zipWithIndex.map {
+      case (extractor, i) =>
+        context.actorOf(ArtifactExtractorActor.props(extractor), s"extractor_$i")
+    }
+    context.actorOf(RoundRobinGroup(extractorActors.map(ref => ref.path.toString)).props())
   }
 
   private def start(): Unit = {
@@ -66,7 +75,13 @@ class MasterActor(scanner: ArtifactScannable, extractor: ArtifactFromImageExtrac
   }
 
   private def extractNumberOfItemsToScan(): Try[Int] = {
-    extractor.extractInt(scanItemNumber())
+    /**
+     * Scrolling down on the last couple of rows doesn't work.
+     * Those rows are bound to be fodder anyway, so it's not an issue if they do not get scanned.
+     * TODO: It would be good to handle them at some point though.
+     */
+    val artifactsToSkip = 35
+    extractors.head.extractInt(scanItemNumber()).map(_ - artifactsToSkip)
   }
 
   private def scanItemNumber(): BufferedImage = {
@@ -75,8 +90,8 @@ class MasterActor(scanner: ArtifactScannable, extractor: ArtifactFromImageExtrac
 }
 
 object MasterActor {
-  def props(scanner: ArtifactScannable, extractor: ArtifactFromImageExtractable with NumberExtractable): Props =
-    Props(new MasterActor(scanner, extractor))
+  def props(scanner: ArtifactScannable, extractors: List[ArtifactFromImageExtractable with NumberExtractable]): Props =
+    Props(new MasterActor(scanner, extractors))
 
   object Start
 }
