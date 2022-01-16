@@ -16,13 +16,14 @@ case class ArtifactOCRExtractor(tesseract: TesseractWrapper)
   import Extraction.ArtifactOCRExtractor._
 
   def extractArtifact(image: BufferedImage): Try[Artifact] = {
+    val rarity = extractRarity(image)
     for {
       level <- extractLevel(image)
       slot <- extractSlot(image)
       mainStat <- extractMainStat(image)
       subStats <- extractSubStats(image)
       setName <- extractSetName(image)
-    } yield Artifact(setName, slot, level, mainStat, subStats)
+    } yield Artifact(setName, slot, level, rarity, mainStat, subStats)
   }
 
   def extractLevel(image: BufferedImage): Try[Int] =
@@ -41,7 +42,7 @@ case class ArtifactOCRExtractor(tesseract: TesseractWrapper)
     case Failure(exception) => Failure(exception)
   }
 
-  def extractMainStat(image: BufferedImage): Try[(String, Float)] = {
+  def extractMainStat(image: BufferedImage): Try[String] = {
     def clean(image: BufferedImage): BufferedImage =
       monochrome(invert(image))
 
@@ -52,11 +53,9 @@ case class ArtifactOCRExtractor(tesseract: TesseractWrapper)
     val valueImage = clean(getSubImage(image, mainStatValueCoordinates))
 
     val result = extractRawData(valueImage).flatMap(rawData => {
-      val value = ArtifactStringExtractor.extractFirstStatValue(rawData)
       extractRawData(nameImage)
         .map(ArtifactStringExtractor.extractName)
         .map(_.map(attachPercentageIfNeeded(rawData)))
-        .map(_ zip value)
     })
 
     tryOptToTry(new RuntimeException("Could not detect the main stat"))(result)
