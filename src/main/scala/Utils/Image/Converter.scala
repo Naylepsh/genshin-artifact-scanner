@@ -8,7 +8,7 @@ object Converter {
     alter(image)(monochrome)
 
   private def monochrome(color: Color): Color = {
-    val monoThreshold = 368
+    val monoThreshold = 300
     val black = new Color(0, 0, 0)
     val white = new Color(255, 255, 255)
 
