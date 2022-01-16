@@ -14,8 +14,8 @@ class ArtifactExtractorActor(extractor: ArtifactFromImageExtractable) extends Ac
   override def receive: Receive = {
     case ExtractArtifact(image) =>
       val message = extractor.extractArtifact(image) match {
-        case Success(artifact) => ArtifactExtractionSuccess(artifact)
-        case Failure(exception) => ArtifactExtractionFailure(exception)
+        case Success(artifact) => ArtifactExtractionSuccess(artifact, image)
+        case Failure(exception) => ArtifactExtractionFailure(exception, image)
       }
       sender() ! message
   }
@@ -27,7 +27,7 @@ object ArtifactExtractorActor {
 
   case class ExtractArtifact(image: BufferedImage)
 
-  case class ArtifactExtractionSuccess(artifact: Artifact)
+  case class ArtifactExtractionSuccess(artifact: Artifact, image: BufferedImage)
 
-  case class ArtifactExtractionFailure(failure: Throwable)
+  case class ArtifactExtractionFailure(failure: Throwable, image: BufferedImage)
 }

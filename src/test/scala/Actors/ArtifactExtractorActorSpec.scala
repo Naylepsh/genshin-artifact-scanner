@@ -27,10 +27,11 @@ class ArtifactExtractorActorSpec extends TestKit(ActorSystem("ArtifactExtractorA
       val error = new RuntimeException
       val extractor = FailingExtractor(error)
       val actor = system.actorOf(ArtifactExtractorActor.props(extractor))
+      val image = openImage(pathToExistingArtifact).get
 
-      openImage(pathToExistingArtifact).map(actor ! ExtractArtifact(_))
+      actor ! ExtractArtifact(image)
 
-      expectMsg(ArtifactExtractionFailure(error))
+      expectMsg(ArtifactExtractionFailure(error, image))
     }
 
     "send back artifact" in {
@@ -40,10 +41,11 @@ class ArtifactExtractorActorSpec extends TestKit(ActorSystem("ArtifactExtractorA
       )
       val extractor = SucceedingExtractor(artifact)
       val actor = system.actorOf(ArtifactExtractorActor.props(extractor))
+      val image = openImage(pathToExistingArtifact).get
 
-      openImage(pathToExistingArtifact).map(actor ! ExtractArtifact(_))
+      actor ! ExtractArtifact(image)
 
-      expectMsg(ArtifactExtractionSuccess(artifact))
+      expectMsg(ArtifactExtractionSuccess(artifact, image))
     }
   }
 }

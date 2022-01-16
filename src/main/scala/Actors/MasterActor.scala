@@ -5,6 +5,7 @@ import Capture.ScreenCapture
 import Capture.ScreenCapture.RectangleCoordinates
 import Extraction.{ArtifactFromImageExtractable, NumberExtractable}
 import Scan.ArtifactScannable
+import Utils.Logging.ImageLogger
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.routing.RoundRobinGroup
 
@@ -19,6 +20,7 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
   import ArtifactScannerActor._
   import MasterActor._
 
+  private val workDir = sys.env("OUTPUT_DIR")
   private val scannerActor = context.actorOf(ArtifactScannerActor.props(scanner))
   private val itemsNumberCoordinates = RectangleCoordinates(new Point(1685, 35), new Point(1740, 60))
   private val extractorRouter = setupExtractorRouter()
@@ -39,11 +41,13 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
   def receiveWithResults(artifacts: List[Artifact], artifactsExpected: Int): Receive = {
     case ArtifactScanned(image) =>
       extractorRouter ! ExtractArtifact(image)
-    case ArtifactExtractionSuccess(artifact) =>
+    case ArtifactExtractionSuccess(artifact, _) =>
       log.info(s"${artifactsExpected - 1} artifacts left to extract.")
       context.become(receiveWithResults(artifact :: artifacts, artifactsExpected - 1))
-    case ArtifactExtractionFailure(failure) =>
-      log.error(s"Failed artifact extraction due to $failure")
+    case ArtifactExtractionFailure(failure, image) =>
+      val message = s"Failed artifact extraction due to $failure"
+      log.error(message)
+      ImageLogger.log(createFilename(workDir))(image, message)
       log.info(s"${artifactsExpected - 1} artifacts left to extract.")
       context.become(receiveWithResults(artifacts, artifactsExpected - 1))
     case ScanningComplete =>
@@ -60,9 +64,9 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
 
   private def start(): Unit = {
     val numberTry = extractNumberOfItemsToScan()
-    if (numberTry.isFailure)
+    if (numberTry.isFailure) {
       log.error("Failed to extract the number of artifacts")
-    else {
+    } else {
       val artifactsToScan = numberTry.get
       log.info(s"Attempting to scan $artifactsToScan artifacts")
       context.become(receiveWithResults(List(), artifactsToScan))
@@ -92,6 +96,11 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
 object MasterActor {
   def props(scanner: ArtifactScannable, extractors: List[ArtifactFromImageExtractable with NumberExtractable]): Props =
     Props(new MasterActor(scanner, extractors))
+
+  private def createFilename(workDir: String): String = {
+    val id = java.util.UUID.randomUUID().toString
+    s"$workDir/$id"
+  }
 
   object Start
 }

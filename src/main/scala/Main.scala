@@ -91,6 +91,6 @@ object Main extends App {
   }
 
 
-  imageHash()
+  withActor()
 }
 
