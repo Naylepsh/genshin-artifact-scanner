@@ -1,8 +1,8 @@
 package Actors
 
 import Actors.ArtifactExtractorActor.{ArtifactExtractionFailure, ArtifactExtractionSuccess, ExtractArtifact}
-import Actors.Common.{openImage, pathToExistingArtifact}
 import Artifact.Artifact
+import Common.Common.{openImage, pathToExistingArtifact}
 import Extraction.ArtifactFromImageExtractable
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}

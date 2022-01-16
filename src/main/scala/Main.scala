@@ -2,6 +2,7 @@ import Actors.MasterActor
 import Actors.MasterActor.Start
 import Extraction._
 import Scan.ArtifactScanner
+import Utils.Image.Converter
 import akka.actor.ActorSystem
 import org.apache.commons.io.output.ByteArrayOutputStream
 
@@ -19,22 +20,21 @@ object Main extends App {
   val scanner = ArtifactScanner(outputDir)
 
   def actorless(): Unit = {
-    val itemsNumberFilename = s"$outputDir/n.png"
-    val image = ImageIO.read(new File(itemsNumberFilename))
-
-    scanner.scanItemsNumber(itemsNumberFilename)
-    val cells = extractor.extractInt(image)
-    //  scrolling down to the last 35 artifacts doesn't work.
-    //  Most likely it's only going to be fodder there, so don't bother for now
-    val artifactsToSkip = 35
-
-    def manualOCRTest(): Unit = {
-      val image = ImageIO.read(new File(".../5-star-4-stats-goblet.png"))
-      val subImage = image.getSubimage(30, 310, 50, 30)
-      val result = tesseract.doOCR(subImage)
+    def manualOCRTest(filename: String, x: Int, y: Int, width: Int, height: Int): Unit = {
+      val image = ImageIO.read(new File(filename))
+      val subImage = image.getSubimage(x, y, width, height)
+      val altered = Converter.monochrome(Converter.invert(subImage))
+      val result = tesseract.doOCR(altered)
       println(result)
     }
 
+    //    val filename = "F:/Misc/output/444b7f97-c58a-41ac-beaf-f732e24ea854.png"
+    //    manualOCRTest(filename, 20, 150, 210, 30)
+    //    manualOCRTest(filename, 20, 180, 45, 40)
+    //    println(extractor.extractMainStat(ImageIO.read(new File(filename))))
+
+    val filename = "F:/Misc/output/a1daf6af-cd28-44e5-9af7-ed32d898078f.png"
+    manualOCRTest(filename, 0, 0, 55, 25)
     println("Done")
   }
 
@@ -49,8 +49,6 @@ object Main extends App {
 
     master ! Start
   }
-
-  //  withActor()
 
   def imageHash(): Unit = {
     val path = "F:/Code/genshin-artifact-scanner/src/test/resources/artifacts/5-star-4-stats-goblet.png"
@@ -91,6 +89,7 @@ object Main extends App {
   }
 
 
+  //  actorless()
   withActor()
 }
 

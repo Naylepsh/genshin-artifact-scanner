@@ -3,7 +3,7 @@ package Actors
 import Artifact.Artifact
 import Capture.ScreenCapture
 import Capture.ScreenCapture.RectangleCoordinates
-import Extraction.{ArtifactFromImageExtractable, NumberExtractable}
+import Extraction.{ArtifactFromImageExtractable, ItemExtractor, NumberExtractable}
 import Scan.ArtifactScannable
 import Utils.Logging.ImageLogger
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
@@ -48,7 +48,6 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
       val message = s"Failed artifact extraction due to $failure"
       log.error(message)
       ImageLogger.log(createFilename(workDir))(image, message)
-      log.info(s"${artifactsExpected - 1} artifacts left to extract.")
       context.become(receiveWithResults(artifacts, artifactsExpected - 1))
     case ScanningComplete =>
       log.info("Scanning Complete") // This doesn't mean that the extraction is complete though
@@ -85,12 +84,11 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
      * TODO: It would be good to handle them at some point though.
      */
     val artifactsToSkip = 35
-    extractors.head.extractInt(scanItemNumber()).map(_ - artifactsToSkip)
+    ItemExtractor.extractNumberOfItems(extractors.head)(scanItemNumber()).map(_ - artifactsToSkip)
   }
 
-  private def scanItemNumber(): BufferedImage = {
+  private def scanItemNumber(): BufferedImage =
     ScreenCapture.captureRectangle(itemsNumberCoordinates)
-  }
 }
 
 object MasterActor {

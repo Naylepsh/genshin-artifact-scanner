@@ -1,7 +1,7 @@
 package Actors
 
 import Actors.ArtifactScannerActor.{ArtifactScanned, ScanningComplete, StartScanning}
-import Actors.Common.pathToExistingArtifact
+import Common.Common.pathToExistingArtifact
 import Scan.ArtifactScannable
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
@@ -44,7 +44,7 @@ class ArtifactScannerActorSpec extends TestKit(ActorSystem("ArtifactScannerActor
 
 object ArtifactScannerActorSpec {
   case class NullScanner() extends ArtifactScannable {
-    override def scanRow(cells: Int): List[BufferedImage] = List(Common.openImage(pathToExistingArtifact).get)
+    override def scanRow(cells: Int): List[BufferedImage] = List(Common.Common.openImage(pathToExistingArtifact).get)
 
     override def moveRowDown(amount: Int): Unit = ()
   }

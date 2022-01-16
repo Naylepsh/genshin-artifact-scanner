@@ -41,13 +41,20 @@ case class ArtifactOCRExtractor(tesseract: TesseractWrapper)
   }
 
   def extractMainStat(image: BufferedImage): Try[(String, Float)] = {
+    def attachPercentageIfNeeded(rawData: String)(statName: String): String =
+      if (rawData.contains('%')) s"$statName%" else statName
+
     val nameImage = getSubImage(image, mainStatNameCoordinates)
     val valueImage = getSubImage(image, mainStatValueCoordinates)
 
-    val result = for {
-      name <- extractRawData(nameImage).map(ArtifactStringExtractor.extractName)
-      value <- extractRawData(valueImage).map(ArtifactStringExtractor.extractFirstStatValue)
-    } yield name zip value
+    val result = extractRawData(valueImage).flatMap(rawData => {
+      val value = ArtifactStringExtractor.extractFirstStatValue(rawData)
+      extractRawData(nameImage)
+        .map(ArtifactStringExtractor.extractName)
+        .map(_.map(attachPercentageIfNeeded(rawData)))
+        .map(_ zip value)
+    })
+
     tryOptToTry(new RuntimeException("Could not detect the main stat"))(result)
   }
 
