@@ -28,14 +28,14 @@ object Main extends App {
       println(result)
     }
 
-    //    val filename = "F:/Misc/output/444b7f97-c58a-41ac-beaf-f732e24ea854.png"
-    //    manualOCRTest(filename, 20, 150, 210, 30)
-    //    manualOCRTest(filename, 20, 180, 45, 40)
-    //    println(extractor.extractMainStat(ImageIO.read(new File(filename))))
+    val filename = "F:/Misc/output/37e1b796-6062-41b1-a1d7-aaae44ce12a1.png"
+    manualOCRTest(filename, 20, 150, 210, 30)
+    manualOCRTest(filename, 20, 180, 45, 40)
+    println(extractor.extractMainStat(ImageIO.read(new File(filename))))
 
-    val filename = "F:/Misc/output/a1daf6af-cd28-44e5-9af7-ed32d898078f.png"
-    manualOCRTest(filename, 0, 0, 55, 25)
-    println("Done")
+    //    val filename = "F:/Misc/output/a1daf6af-cd28-44e5-9af7-ed32d898078f.png"
+    //    manualOCRTest(filename, 0, 0, 55, 25)
+    //    println("Done")
   }
 
 

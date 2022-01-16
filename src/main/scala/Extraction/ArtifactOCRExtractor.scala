@@ -2,6 +2,7 @@ package Extraction
 
 import Artifact.Artifact
 import Capture.ScreenCapture.RectangleCoordinates
+import Utils.Image.Converter.{invert, monochrome}
 
 import java.awt.image.BufferedImage
 import java.awt.{Color, Point}
@@ -41,11 +42,14 @@ case class ArtifactOCRExtractor(tesseract: TesseractWrapper)
   }
 
   def extractMainStat(image: BufferedImage): Try[(String, Float)] = {
+    def clean(image: BufferedImage): BufferedImage =
+      monochrome(invert(image))
+
     def attachPercentageIfNeeded(rawData: String)(statName: String): String =
       if (rawData.contains('%')) s"$statName%" else statName
 
-    val nameImage = getSubImage(image, mainStatNameCoordinates)
-    val valueImage = getSubImage(image, mainStatValueCoordinates)
+    val nameImage = clean(getSubImage(image, mainStatNameCoordinates))
+    val valueImage = clean(getSubImage(image, mainStatValueCoordinates))
 
     val result = extractRawData(valueImage).flatMap(rawData => {
       val value = ArtifactStringExtractor.extractFirstStatValue(rawData)
