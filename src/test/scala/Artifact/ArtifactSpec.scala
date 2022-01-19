@@ -1,6 +1,7 @@
 package Artifact
 
 import org.scalatest.OptionValues.convertOptionToValuable
+import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
@@ -26,5 +27,15 @@ class ArtifactSpec extends AnyFlatSpec with should.Matchers {
     elementalStats foreach (statName => {
       Artifact.calcMainStatValue(statName, 5, 20).value shouldBe 46.6
     })
+  }
+
+  "Artifact constructor" should "calculate main stat value" in {
+    val artifact = Artifact("Gambler", "Flower", 16, 4, "ATK", Map())
+    artifact.success.value.mainStatValue shouldBe 232
+  }
+
+  "Artifact constructor" should "return failure on invalid input" in {
+    val artifact = Artifact("Gambler", "Flower", -1, -1, "NonExistentStat", Map())
+    artifact.isFailure shouldBe true
   }
 }

@@ -23,7 +23,8 @@ case class ArtifactOCRExtractor(tesseract: TesseractWrapper)
       mainStat <- extractMainStat(image)
       subStats <- extractSubStats(image)
       setName <- extractSetName(image)
-    } yield Artifact(setName, slot, level, rarity, mainStat, subStats)
+      artifact <- Artifact(setName, slot, level, rarity, mainStat, subStats)
+    } yield artifact
   }
 
   def extractLevel(image: BufferedImage): Try[Int] =

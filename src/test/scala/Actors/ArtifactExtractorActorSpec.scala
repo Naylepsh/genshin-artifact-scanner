@@ -36,9 +36,8 @@ class ArtifactExtractorActorSpec extends TestKit(ActorSystem("ArtifactExtractorA
 
     "send back artifact" in {
       val artifact = Artifact(
-        setName = "Gambler", slot = "Flower",
-        level = 20, rarity = 5,
-        mainStat = "Baz", subStats = Map()
+        setName = "Gambler", slot = "Flower", level = 20, rarity = 5,
+        mainStat = "Baz", mainStatValue = 311, subStats = Map()
       )
       val extractor = SucceedingExtractor(artifact)
       val actor = system.actorOf(ArtifactExtractorActor.props(extractor))
