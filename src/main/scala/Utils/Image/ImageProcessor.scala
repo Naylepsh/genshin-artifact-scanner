@@ -3,7 +3,7 @@ package Utils.Image
 import java.awt.Color
 import java.awt.image.BufferedImage
 
-object Converter {
+object ImageProcessor {
   def monochrome(image: BufferedImage): BufferedImage =
     alter(image)(monochrome)
 

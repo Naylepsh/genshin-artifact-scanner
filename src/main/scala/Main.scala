@@ -2,7 +2,7 @@ import Actors.MasterActor
 import Actors.MasterActor.Start
 import Extraction._
 import Scan.ArtifactScanner
-import Utils.Image.Converter
+import Utils.Image.ImageProcessor
 import akka.actor.ActorSystem
 import org.apache.commons.io.output.ByteArrayOutputStream
 
@@ -23,7 +23,7 @@ object Main extends App {
     def manualOCRTest(filename: String, x: Int, y: Int, width: Int, height: Int): Unit = {
       val image = ImageIO.read(new File(filename))
       val subImage = image.getSubimage(x, y, width, height)
-      val altered = Converter.monochrome(Converter.invert(subImage))
+      val altered = ImageProcessor.monochrome(ImageProcessor.invert(subImage))
       val result = tesseract.doOCR(altered)
       println(result)
     }

@@ -1,6 +1,6 @@
 package Extraction
 
-import Utils.Image.Converter._
+import Utils.Image.ImageProcessor._
 
 import java.awt.image.BufferedImage
 import scala.util.Try
