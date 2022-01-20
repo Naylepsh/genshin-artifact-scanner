@@ -101,7 +101,7 @@ class ArtifactFromImageExtractorSpec extends AnyFlatSpec with should.Matchers {
 
     val artifact = extractor.extractArtifact(image)
 
-    val expectedArtifact = Artifact(setName = "Lavawalker", slot = "Goblet", level = 4, rarity = 5,
+    val expectedArtifact = new Artifact(setName = "Lavawalker", slot = "Goblet", level = 4, rarity = 5,
       mainStat = "Electro DMG Bonus%", mainStatValue = 14.9, subStats = Map(
         "HP" -> 269,
         "DEF" -> 19,

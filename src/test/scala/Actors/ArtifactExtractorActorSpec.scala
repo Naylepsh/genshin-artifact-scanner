@@ -35,7 +35,7 @@ class ArtifactExtractorActorSpec extends TestKit(ActorSystem("ArtifactExtractorA
     }
 
     "send back artifact" in {
-      val artifact = Artifact(
+      val artifact = new Artifact(
         setName = "Gambler", slot = "Flower", level = 20, rarity = 5,
         mainStat = "Baz", mainStatValue = 311, subStats = Map()
       )
