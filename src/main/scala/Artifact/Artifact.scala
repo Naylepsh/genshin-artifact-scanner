@@ -36,4 +36,27 @@ object Artifact {
     else
       statName
   }
+
+  def validate(artifact: Artifact): Unit = {
+    val validators = List(validateLevel _, validateRarity _, validateSubStats _)
+    validators.foreach(_ (artifact))
+  }
+
+  private def validateLevel(artifact: Artifact): Unit = {
+    require(0 <= artifact.level && artifact.level <= 4 * artifact.rarity)
+  }
+
+  private def validateRarity(artifact: Artifact): Unit = {
+    require(1 < artifact.rarity && artifact.rarity <= 5)
+  }
+
+  private def validateSubStats(artifact: Artifact): Unit = {
+    val offset = artifact.level / 4
+    val baseMin = List(artifact.rarity - 2, 0).max
+    val min = List(baseMin + offset, 4).min
+    val baseMax = List(artifact.rarity - 1, 0).max
+    val max = List(baseMax + offset, 4).min
+    val subStats = artifact.subStats.size
+    require(min <= subStats && subStats <= max)
+  }
 }
