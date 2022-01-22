@@ -48,6 +48,10 @@ object ArtifactStringExtractor {
       .map(_.toFloat)
   }
 
+  def correctStatName(statName: String): String = {
+    statName.replaceFirst("Hydr.*", "Hydro")
+  }
+
   private def extractSubStat(subStatLines: Iterable[String])(statName: String): Option[(String, Float)] = {
     val statSubstring = if (isFlatStat(statName)) statName else statName.dropRight(1)
     subStatLines.find(_.contains(statSubstring))

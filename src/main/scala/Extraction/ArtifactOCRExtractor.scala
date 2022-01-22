@@ -55,6 +55,7 @@ case class ArtifactOCRExtractor(tesseract: TesseractWrapper)
 
     val result = extractRawData(valueImage).flatMap(rawData => {
       extractRawData(nameImage)
+        .map(ArtifactStringExtractor.correctStatName)
         .map(ArtifactStringExtractor.extractName)
         .map(_.map(attachPercentageIfNeeded(rawData)))
     })
