@@ -24,6 +24,7 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
   private val scannerActor = context.actorOf(ArtifactScannerActor.props(scanner))
   private val itemsNumberCoordinates = RectangleCoordinates(new Point(1685, 35), new Point(1740, 60))
   private val extractionQueue = context.actorOf(ExtractionQueue.props(extractors, self, s"$workDir/temp"))
+  private val logImage = ImageLogger.log(s"$workDir/logs") _
 
   override def receive: Receive = {
     /**
@@ -49,7 +50,7 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
     case ArtifactExtractionFailure(failure, image) =>
       val message = s"Failed artifact extraction due to $failure"
       log.error(message)
-      ImageLogger.log(createFilename(s"$workDir/logs"))(image, message)
+      logImage(image, message)
       context.become(receiveWithResults(artifacts, artifactsExpected - 1))
       if (artifactsExpected == 1)
         extractionQueue ! Teardown
@@ -91,10 +92,6 @@ object MasterActor {
   def props(scanner: ArtifactScannable, extractors: List[ArtifactFromImageExtractable with NumberExtractable]): Props =
     Props(new MasterActor(scanner, extractors))
 
-  private def createFilename(workDir: String): String = {
-    val id = java.util.UUID.randomUUID().toString
-    s"$workDir/$id"
-  }
 
   object Start
 }

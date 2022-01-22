@@ -3,14 +3,14 @@ package Actors
 import Actors.ArtifactExtractorActor._
 import Actors.ExtractionQueue.{Teardown, TeardownComplete}
 import Extraction.{ArtifactFromImageExtractable, NumberExtractable}
+import Utils.Image.ImageUtils.{open, save}
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.routing.RoundRobinGroup
 import org.apache.commons.io.FileUtils
 
 import java.awt.image.BufferedImage
 import java.io.File
-import javax.imageio.ImageIO
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 class ExtractionQueue(
                        extractors: List[ArtifactFromImageExtractable with NumberExtractable],
@@ -21,9 +21,12 @@ class ExtractionQueue(
   override def receive: Receive = receiver(List(), List(), availableWorkers = extractors.length)
 
   def receiver(bufferedQueue: List[BufferedImage], fileQueue: List[String], availableWorkers: Int): Receive = {
-    case ExtractArtifact(image) => extractArtifact(image, bufferedQueue, fileQueue, availableWorkers)
-    case message: ArtifactExtractionResult => sendToMasterAndCheckoutQueues(message, bufferedQueue, fileQueue, availableWorkers + 1)
-    case Teardown => teardown()
+    case ExtractArtifact(image) =>
+      extractArtifact(image, bufferedQueue, fileQueue, availableWorkers)
+    case message: ArtifactExtractionResult =>
+      sendToMasterAndCheckoutQueues(message, bufferedQueue, fileQueue, availableWorkers + 1)
+    case Teardown =>
+      teardown()
   }
 
   private def extractArtifact(image: BufferedImage, bufferedQueue: List[BufferedImage],
@@ -35,7 +38,7 @@ class ExtractionQueue(
       context.become(receiver(image :: bufferedQueue, fileQueue, availableWorkers))
     else {
       val dest = createFilename()
-      saveToFile(image, dest)
+      save(image, dest)
       context.become(receiver(bufferedQueue, dest :: fileQueue, availableWorkers))
     }
   }
@@ -50,7 +53,7 @@ class ExtractionQueue(
     }
     else if (fileQueue.nonEmpty) {
       context.become(receiver(bufferedQueue, fileQueue.tail, availableWorkers))
-      openImage(fileQueue.head) match {
+      open(fileQueue.head) match {
         case Success(image) => self ! ExtractArtifact(image)
         case Failure(exception) => log.error(s"Couldn't open file=${fileQueue.head} due to $exception")
       }
@@ -64,20 +67,6 @@ class ExtractionQueue(
     sender() ! TeardownComplete
   }
 
-  private def openImage(source: String): Try[BufferedImage] = Try {
-    ImageIO.read(new File(source))
-  }
-
-  private def saveToFile(image: BufferedImage, dest: String, format: String = "png"): Unit =
-    ImageIO.write(image, format, new File(enforceFormatOnFilename(dest, format)))
-
-  private def enforceFormatOnFilename(filename: String, defaultFormat: String): String = {
-    if (filename.endsWith(s".$defaultFormat"))
-      filename
-    else
-      s"$filename.$defaultFormat"
-  }
-
   private def setupExtractorRouter(): ActorRef = {
     val extractorActors = extractors.zipWithIndex.map {
       case (extractor, i) =>
@@ -87,9 +76,8 @@ class ExtractionQueue(
   }
 
   private def createFilename(): String = {
-    val format = "png"
     val id = java.util.UUID.randomUUID().toString
-    s"$workDir/$id.$format"
+    s"$workDir/$id.png"
   }
 }
 
