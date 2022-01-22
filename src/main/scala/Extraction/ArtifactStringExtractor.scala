@@ -54,7 +54,7 @@ object ArtifactStringExtractor {
      * TODO: Use some better approach that hardcoded regexes. Something like a word-similarity confidence score?
      */
     statName
-      .replaceFirst("Hydr.*", "Hydro")
+      .replaceFirst("Hydr.", "Hydro")
       .replaceFirst("Anemeo", "Anemo")
   }
 
