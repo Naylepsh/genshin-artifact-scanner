@@ -6,8 +6,7 @@ import Capture.ScreenCapture.RectangleCoordinates
 import Extraction.{ArtifactFromImageExtractable, ItemExtractor, NumberExtractable}
 import Scan.ArtifactScannable
 import Utils.Logging.ImageLogger
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.routing.RoundRobinGroup
+import akka.actor.{Actor, ActorLogging, Props}
 
 import java.awt.Point
 import java.awt.image.BufferedImage
@@ -23,7 +22,7 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
   private val workDir = sys.env("OUTPUT_DIR")
   private val scannerActor = context.actorOf(ArtifactScannerActor.props(scanner))
   private val itemsNumberCoordinates = RectangleCoordinates(new Point(1685, 35), new Point(1740, 60))
-  private val extractorRouter = setupExtractorRouter()
+  private val extractionQueue = context.actorOf(ExtractionQueue.props(extractors, self, s"$workDir/temp"))
 
   override def receive: Receive = {
     /**
@@ -40,25 +39,17 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
 
   def receiveWithResults(artifacts: List[Artifact], artifactsExpected: Int): Receive = {
     case ArtifactScanned(image) =>
-      extractorRouter ! ExtractArtifact(image)
+      extractionQueue ! ExtractArtifact(image)
     case ArtifactExtractionSuccess(artifact, _) =>
       log.info(s"${artifactsExpected - 1} artifacts left to extract.")
       context.become(receiveWithResults(artifact :: artifacts, artifactsExpected - 1))
     case ArtifactExtractionFailure(failure, image) =>
       val message = s"Failed artifact extraction due to $failure"
       log.error(message)
-      ImageLogger.log(createFilename(workDir))(image, message)
+      ImageLogger.log(createFilename(s"$workDir/logs"))(image, message)
       context.become(receiveWithResults(artifacts, artifactsExpected - 1))
     case ScanningComplete =>
       log.info("Scanning Complete") // This doesn't mean that the extraction is complete though
-  }
-
-  private def setupExtractorRouter(): ActorRef = {
-    val extractorActors = extractors.zipWithIndex.map {
-      case (extractor, i) =>
-        context.actorOf(ArtifactExtractorActor.props(extractor), s"extractor_$i")
-    }
-    context.actorOf(RoundRobinGroup(extractorActors.map(ref => ref.path.toString)).props())
   }
 
   private def start(): Unit = {
@@ -83,7 +74,8 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
      * Those rows are bound to be fodder anyway, so it's not an issue if they do not get scanned.
      * TODO: It would be good to handle them at some point though.
      */
-    val artifactsToSkip = 35
+    //    val artifactsToSkip = 35
+    val artifactsToSkip = 900
     ItemExtractor.extractNumberOfItems(extractors.head)(scanItemNumber()).map(_ - artifactsToSkip)
   }
 

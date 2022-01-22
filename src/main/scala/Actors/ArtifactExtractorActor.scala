@@ -25,9 +25,11 @@ class ArtifactExtractorActor(extractor: ArtifactFromImageExtractable) extends Ac
 object ArtifactExtractorActor {
   def props(extractor: ArtifactFromImageExtractable): Props = Props(new ArtifactExtractorActor(extractor))
 
+  trait ArtifactExtractionResult
+
   case class ExtractArtifact(image: BufferedImage)
 
-  case class ArtifactExtractionSuccess(artifact: Artifact, image: BufferedImage)
+  case class ArtifactExtractionSuccess(artifact: Artifact, image: BufferedImage) extends ArtifactExtractionResult
 
-  case class ArtifactExtractionFailure(failure: Throwable, image: BufferedImage)
+  case class ArtifactExtractionFailure(failure: Throwable, image: BufferedImage) extends ArtifactExtractionResult
 }
