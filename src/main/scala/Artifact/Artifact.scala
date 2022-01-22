@@ -36,11 +36,17 @@ object Artifact {
   }
 
   private def validateLevel(artifact: Artifact): Unit = {
-    require(0 <= artifact.level && artifact.level <= 4 * artifact.rarity)
+    val minLevel = 0
+    val maxLevel = 4 * artifact.rarity
+    require(minLevel <= artifact.level && artifact.level <= maxLevel,
+      s"Level=${artifact.level} outside of boundaries=[$minLevel, $maxLevel]")
   }
 
   private def validateRarity(artifact: Artifact): Unit = {
-    require(1 < artifact.rarity && artifact.rarity <= 5)
+    val minRarity = 1
+    val maxRarity = 5
+    require(minRarity < artifact.rarity && artifact.rarity <= maxRarity,
+      s"Rarity=${artifact.rarity} outside of boundaries=[$minRarity, $maxRarity]")
   }
 
   private def validateSubStats(artifact: Artifact): Unit = {
@@ -50,7 +56,7 @@ object Artifact {
     val baseMax = List(artifact.rarity - 1, 0).max
     val max = List(baseMax + offset, 4).min
     val subStats = artifact.subStats.size
-    require(min <= subStats && subStats <= max)
+    require(min <= subStats && subStats <= max, s"Number of substats=$subStats outside of boundaries=[$min, $max]")
   }
 
   def calcMainStatValue(statName: String, rarity: Int, level: Int): Option[Double] = {

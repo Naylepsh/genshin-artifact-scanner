@@ -117,7 +117,7 @@ object ArtifactFromImageExtractorSpec {
   val dataPath: String = sys.env("TESSDATA")
   val language = "eng"
   val tesseract: TesseractWrapper = TesseractWrapper(dataPath, language)
-  val extractor: ArtifactOCRExtractor = ArtifactOCRExtractor(tesseract)
+  val extractor: ArtifactTesseractExtractor = ArtifactTesseractExtractor(tesseract)
 
   def getImage(pathToImage: String): BufferedImage =
     ImageIO.read(getClass.getResourceAsStream(pathToImage))

@@ -49,7 +49,13 @@ object ArtifactStringExtractor {
   }
 
   def correctStatName(statName: String): String = {
-    statName.replaceFirst("Hydr.*", "Hydro")
+    /**
+     * Fix 'common' typos in OCR. Should handle stat names and set names.
+     * TODO: Use some better approach that hardcoded regexes. Something like a word-similarity confidence score?
+     */
+    statName
+      .replaceFirst("Hydr.*", "Hydro")
+      .replaceFirst("Anemeo", "Anemo")
   }
 
   private def extractSubStat(subStatLines: Iterable[String])(statName: String): Option[(String, Float)] = {

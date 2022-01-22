@@ -15,7 +15,7 @@ object Main extends App {
   val dataPath = sys.env("TESSDATA")
   val language = "eng"
   val tesseract = TesseractWrapper(dataPath, language)
-  val extractor = ArtifactOCRExtractor(tesseract)
+  val extractor = ArtifactTesseractExtractor(tesseract)
   val outputDir = sys.env("OUTPUT_DIR")
   val scanner = ArtifactScanner(outputDir)
 
@@ -43,7 +43,7 @@ object Main extends App {
     val system = ActorSystem("GenshinArtifactScanner")
     val extractors = for (_ <- 1 to 20) yield {
       val tesseract = TesseractWrapper(dataPath, language)
-      ArtifactOCRExtractor(tesseract)
+      ArtifactTesseractExtractor(tesseract)
     }
     val master = system.actorOf(MasterActor.props(scanner, extractors.toList))
 
