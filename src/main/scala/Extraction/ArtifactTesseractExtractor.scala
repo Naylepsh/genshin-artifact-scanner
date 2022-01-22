@@ -2,32 +2,44 @@ package Extraction
 
 import Artifact.Artifact
 import Capture.ScreenCapture.RectangleCoordinates
+import Utils.Image.ImageProcessor.{invert, monochrome}
 
 import java.awt.image.BufferedImage
 import java.awt.{Color, Point}
 import scala.util.{Failure, Success, Try}
 
 
-case class ArtifactOCRExtractor(tesseract: TesseractWrapper) extends ArtifactFromImageExtractable {
+case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
+  extends ArtifactFromImageExtractable
+    with NumberExtractable {
 
-  import Extraction.ArtifactOCRExtractor._
+  import Extraction.ArtifactTesseractExtractor._
 
   def extractArtifact(image: BufferedImage): Try[Artifact] = {
+    val rarity = extractRarity(image)
     for {
       level <- extractLevel(image)
       slot <- extractSlot(image)
       mainStat <- extractMainStat(image)
       subStats <- extractSubStats(image)
       setName <- extractSetName(image)
-    } yield Artifact(setName, slot, level, mainStat, subStats)
+      artifact <- Artifact(setName, slot, level, rarity, mainStat, subStats)
+    } yield artifact
   }
 
-  def extractLevel(image: BufferedImage): Try[Int] =
-    extractInt(getSubImage(image, levelCoordinates))
+  def extractLevel(image: BufferedImage): Try[Int] = {
+    def transform(rawData: String): String =
+      ArtifactTesseractCorrector.correctLevel(ArtifactStringExtractor.correctNumericValue(rawData))
 
-  def extractInt(image: BufferedImage): Try[Int] = {
+    extractInt(getSubImage(image, levelCoordinates), transform)
+  }
+
+  def extractInt(image: BufferedImage): Try[Int] =
+    extractInt(image, ArtifactStringExtractor.correctNumericValue)
+
+  def extractInt(image: BufferedImage, transform: String => String): Try[Int] = {
     val result = extractRawData(image)
-      .map(ArtifactStringExtractor.correctNumericValue)
+      .map(transform)
       .map(ArtifactStringExtractor.extractInt)
     tryOptToTry(new RuntimeException("Could not detect any numeric value"))(result)
   }
@@ -38,14 +50,26 @@ case class ArtifactOCRExtractor(tesseract: TesseractWrapper) extends ArtifactFro
     case Failure(exception) => Failure(exception)
   }
 
-  def extractMainStat(image: BufferedImage): Try[(String, Float)] = {
-    val nameImage = getSubImage(image, mainStatNameCoordinates)
-    val valueImage = getSubImage(image, mainStatValueCoordinates)
+  private def extractRawData(image: BufferedImage): Try[String] =
+    tesseract.doOCR(image)
 
-    val result = for {
-      name <- extractRawData(nameImage).map(ArtifactStringExtractor.extractName)
-      value <- extractRawData(valueImage).map(ArtifactStringExtractor.extractFirstStatValue)
-    } yield name zip value
+  def extractMainStat(image: BufferedImage): Try[String] = {
+    def clean(image: BufferedImage): BufferedImage =
+      monochrome(invert(image))
+
+    def attachPercentageIfNeeded(rawData: String)(statName: String): String =
+      if (rawData.contains('%')) s"$statName%" else statName
+
+    val nameImage = clean(getSubImage(image, mainStatNameCoordinates))
+    val valueImage = clean(getSubImage(image, mainStatValueCoordinates))
+
+    val result = extractRawData(valueImage).flatMap(rawData => {
+      extractRawData(nameImage)
+        .map(ArtifactStringExtractor.correctStatName)
+        .map(ArtifactStringExtractor.extractName)
+        .map(_.map(attachPercentageIfNeeded(rawData)))
+    })
+
     tryOptToTry(new RuntimeException("Could not detect the main stat"))(result)
   }
 
@@ -97,9 +121,6 @@ case class ArtifactOCRExtractor(tesseract: TesseractWrapper) extends ArtifactFro
   def extractRarity(image: BufferedImage): Int =
     rgbToRarity.getOrElse(new Color(image.getRGB(rarityPoint.x, rarityPoint.y)), 1)
 
-  private def extractRawData(image: BufferedImage): Try[String] =
-    tesseract.doOCR(image)
-
   private def getSetNameSubImage(image: BufferedImage): BufferedImage =
     getSubStatsDependantSubImage(subStatsNumberToSetNameCoordinates)(image)
 
@@ -113,7 +134,7 @@ case class ArtifactOCRExtractor(tesseract: TesseractWrapper) extends ArtifactFro
     getSubStatsDependantSubImage(subStatsNumberToSubStatsCoordinates)(image)
 }
 
-object ArtifactOCRExtractor {
+object ArtifactTesseractExtractor {
   private val levelCoordinates = RectangleCoordinates(new Point(30, 310), new Point(80, 340))
   private val subStatsNumberToSetNameCoordinates = Map(
     1 -> RectangleCoordinates(new Point(20, 405), new Point(335, 435)),

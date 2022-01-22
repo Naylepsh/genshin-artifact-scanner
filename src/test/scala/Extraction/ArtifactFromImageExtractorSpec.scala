@@ -38,7 +38,7 @@ class ArtifactFromImageExtractorSpec extends AnyFlatSpec with should.Matchers {
   "Extract main stat" should "extract exact stat name and value" in {
     val pathToFile = "/artifacts/5-star-4-stats-flower.png"
     val image = getImage(pathToFile)
-    extractor.extractMainStat(image).success.value shouldBe("HP", 4780)
+    extractor.extractMainStat(image).success.value shouldBe "HP"
   }
 
   "Extract rarity" should "extract 5*" in {
@@ -101,8 +101,8 @@ class ArtifactFromImageExtractorSpec extends AnyFlatSpec with should.Matchers {
 
     val artifact = extractor.extractArtifact(image)
 
-    val expectedArtifact = Artifact(setName = "Lavawalker", slot = "Goblet", level = 4,
-      mainStat = ("Electro DMG Bonus", 14.9f), subStats = Map(
+    val expectedArtifact = new Artifact(setName = "Lavawalker", slot = "Goblet", level = 4, rarity = 5,
+      mainStat = "Electro DMG Bonus%", mainStatValue = 14.9, subStats = Map(
         "HP" -> 269,
         "DEF" -> 19,
         "CRIT DMG%" -> 7.0f,
@@ -117,7 +117,7 @@ object ArtifactFromImageExtractorSpec {
   val dataPath: String = sys.env("TESSDATA")
   val language = "eng"
   val tesseract: TesseractWrapper = TesseractWrapper(dataPath, language)
-  val extractor: ArtifactOCRExtractor = ArtifactOCRExtractor(tesseract)
+  val extractor: ArtifactTesseractExtractor = ArtifactTesseractExtractor(tesseract)
 
   def getImage(pathToImage: String): BufferedImage =
     ImageIO.read(getClass.getResourceAsStream(pathToImage))

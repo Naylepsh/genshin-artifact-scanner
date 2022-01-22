@@ -4,10 +4,11 @@ import Scan.ArtifactScannable
 import Scan.ArtifactScanner.{artifactsInRow, scrollAmounts}
 import akka.actor.{Actor, Props}
 
+import java.awt.image.BufferedImage
 import scala.annotation.tailrec
 import scala.language.postfixOps
 
-class ArtifactScannerActor(scanner: ArtifactScannable, workDir: String) extends Actor {
+class ArtifactScannerActor(scanner: ArtifactScannable) extends Actor {
 
   import ArtifactScannerActor._
 
@@ -34,29 +35,17 @@ class ArtifactScannerActor(scanner: ArtifactScannable, workDir: String) extends 
 
   private def scanRow(cells: Int): Unit = {
     val cellsToScan = List(cells, artifactsInRow).min
-    val filenames = createFilenames(cellsToScan)
 
-    scanner.scanRow(cellsToScan, filenames)
-
-    filenames.foreach(sender() ! ArtifactScanned(_))
+    scanner.scanRow(cellsToScan).foreach(sender() ! ArtifactScanned(_))
   }
-
-  private def createFilenames(n: Int): List[String] = 1 to n map { _ => createFilename() } toList
-
-  private def createFilename(): String = {
-    val format = "png"
-    val id = java.util.UUID.randomUUID().toString
-    s"$workDir/$id.$format"
-  }
-
 }
 
 object ArtifactScannerActor {
-  def props(scanner: ArtifactScannable, workDir: String): Props = Props(new ArtifactScannerActor(scanner, workDir))
+  def props(scanner: ArtifactScannable): Props = Props(new ArtifactScannerActor(scanner))
 
   case class StartScanning(cells: Int)
 
-  case class ArtifactScanned(filename: String)
+  case class ArtifactScanned(image: BufferedImage)
 
   case object ScanningComplete
 }

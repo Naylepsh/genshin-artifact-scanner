@@ -1,11 +1,14 @@
 package Actors
 
 import Actors.ArtifactScannerActor.{ArtifactScanned, ScanningComplete, StartScanning}
+import Common.Common.pathToExistingArtifact
 import Scan.ArtifactScannable
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpecLike
+
+import java.awt.image.BufferedImage
 
 class ArtifactScannerActorSpec extends TestKit(ActorSystem("ArtifactScannerActorSpec"))
   with ImplicitSender
@@ -21,7 +24,7 @@ class ArtifactScannerActorSpec extends TestKit(ActorSystem("ArtifactScannerActor
   "Artifact scanner" should {
     "send ArtifactScanned messages back to the sender" in {
       val cells = 1
-      val actor = system.actorOf(ArtifactScannerActor.props(NullScanner(), workDir))
+      val actor = system.actorOf(ArtifactScannerActor.props(NullScanner()))
 
       actor ! StartScanning(cells)
 
@@ -30,7 +33,7 @@ class ArtifactScannerActorSpec extends TestKit(ActorSystem("ArtifactScannerActor
 
     "send ScanningComplete message back to the sender once scanning is complete" in {
       val cells = 1
-      val actor = system.actorOf(ArtifactScannerActor.props(NullScanner(), workDir))
+      val actor = system.actorOf(ArtifactScannerActor.props(NullScanner()))
 
       actor ! StartScanning(cells)
 
@@ -40,10 +43,8 @@ class ArtifactScannerActorSpec extends TestKit(ActorSystem("ArtifactScannerActor
 }
 
 object ArtifactScannerActorSpec {
-  val workDir = "./"
-
   case class NullScanner() extends ArtifactScannable {
-    override def scanRow(cells: Int, filenames: List[String]): Unit = ()
+    override def scanRow(cells: Int): List[BufferedImage] = List(Common.Common.openImage(pathToExistingArtifact).get)
 
     override def moveRowDown(amount: Int): Unit = ()
   }

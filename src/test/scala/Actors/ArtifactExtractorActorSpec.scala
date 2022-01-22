@@ -2,6 +2,7 @@ package Actors
 
 import Actors.ArtifactExtractorActor.{ArtifactExtractionFailure, ArtifactExtractionSuccess, ExtractArtifact}
 import Artifact.Artifact
+import Common.Common.{openImage, pathToExistingArtifact}
 import Extraction.ArtifactFromImageExtractable
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
@@ -22,44 +23,34 @@ class ArtifactExtractorActorSpec extends TestKit(ActorSystem("ArtifactExtractorA
 
   "Artifact extractor" should {
     import ArtifactExtractorActorSpec._
-    "send back file opening failure" in {
-      val error = new RuntimeException
-      val extractor = FailingExtractor(error)
-      val actor = system.actorOf(ArtifactExtractorActor.props(extractor))
-
-      actor ! ExtractArtifact("/non-existent-directory/non-existent-file.png")
-
-      expectMsgType[ArtifactExtractionFailure]
-    }
-
     "send back artifact extraction failure" in {
       val error = new RuntimeException
       val extractor = FailingExtractor(error)
       val actor = system.actorOf(ArtifactExtractorActor.props(extractor))
+      val image = openImage(pathToExistingArtifact).get
 
-      actor ! ExtractArtifact(pathToExistingArtifact)
+      actor ! ExtractArtifact(image)
 
-      expectMsg(ArtifactExtractionFailure(error))
+      expectMsg(ArtifactExtractionFailure(error, image))
     }
 
     "send back artifact" in {
-      val artifact = Artifact(
-        setName = "Gambler", slot = "Flower", level = 20,
-        mainStat = ("Baz", 1234), subStats = Map()
+      val artifact = new Artifact(
+        setName = "Gambler", slot = "Flower", level = 20, rarity = 5,
+        mainStat = "Baz", mainStatValue = 311, subStats = Map()
       )
       val extractor = SucceedingExtractor(artifact)
       val actor = system.actorOf(ArtifactExtractorActor.props(extractor))
+      val image = openImage(pathToExistingArtifact).get
 
-      actor ! ExtractArtifact(pathToExistingArtifact)
+      actor ! ExtractArtifact(image)
 
-      expectMsg(ArtifactExtractionSuccess(artifact))
+      expectMsg(ArtifactExtractionSuccess(artifact, image))
     }
   }
 }
 
 object ArtifactExtractorActorSpec {
-  val pathToExistingArtifact: String = getClass.getResource("/artifacts/4-star-2-stats-plume.png").getPath
-
   case class FailingExtractor(error: Throwable) extends ArtifactFromImageExtractable {
     override def extractArtifact(image: BufferedImage): Try[Artifact] = Failure(error)
   }
