@@ -19,7 +19,8 @@ object Artifact {
       case Some(mainStatValue) =>
         Artifact(setName, slot, level, rarity, mainStat, mainStatValue, subStats)
       case None =>
-        Failure(new RuntimeException("Can't calculate main stat value due to invalid stat name, rarity or level"))
+        val message = s"Can't calculate main stat value due to invalid stat name=$mainStat, rarity=$rarity or level=$level"
+        Failure(new RuntimeException(message))
     }
   }
 
