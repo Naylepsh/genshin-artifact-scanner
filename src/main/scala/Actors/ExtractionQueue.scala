@@ -1,9 +1,11 @@
 package Actors
 
 import Actors.ArtifactExtractorActor._
+import Actors.ExtractionQueue.{Teardown, TeardownComplete}
 import Extraction.{ArtifactFromImageExtractable, NumberExtractable}
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.routing.RoundRobinGroup
+import org.apache.commons.io.FileUtils
 
 import java.awt.image.BufferedImage
 import java.io.File
@@ -21,6 +23,7 @@ class ExtractionQueue(
   def receiver(bufferedQueue: List[BufferedImage], fileQueue: List[String], availableWorkers: Int): Receive = {
     case ExtractArtifact(image) => extractArtifact(image, bufferedQueue, fileQueue, availableWorkers)
     case message: ArtifactExtractionResult => sendToMasterAndCheckoutQueues(message, bufferedQueue, fileQueue, availableWorkers + 1)
+    case Teardown => teardown()
   }
 
   private def extractArtifact(image: BufferedImage, bufferedQueue: List[BufferedImage],
@@ -56,6 +59,11 @@ class ExtractionQueue(
     }
   }
 
+  private def teardown(): Unit = {
+    FileUtils.deleteDirectory(new File(workDir))
+    sender() ! TeardownComplete
+  }
+
   private def openImage(source: String): Try[BufferedImage] = Try {
     ImageIO.read(new File(source))
   }
@@ -89,4 +97,8 @@ object ExtractionQueue {
   def props(extractors: List[ArtifactFromImageExtractable with NumberExtractable],
             masterRef: ActorRef, workDir: String): Props =
     Props(new ExtractionQueue(extractors, masterRef, workDir))
+
+  object Teardown
+
+  object TeardownComplete
 }

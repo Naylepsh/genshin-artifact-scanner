@@ -1,5 +1,6 @@
 package Actors
 
+import Actors.ExtractionQueue.{Teardown, TeardownComplete}
 import Artifact.Artifact
 import Capture.ScreenCapture
 import Capture.ScreenCapture.RectangleCoordinates
@@ -43,13 +44,17 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
     case ArtifactExtractionSuccess(artifact, _) =>
       log.info(s"${artifactsExpected - 1} artifacts left to extract.")
       context.become(receiveWithResults(artifact :: artifacts, artifactsExpected - 1))
+      if (artifactsExpected == 1)
+        extractionQueue ! Teardown
     case ArtifactExtractionFailure(failure, image) =>
       val message = s"Failed artifact extraction due to $failure"
       log.error(message)
       ImageLogger.log(createFilename(s"$workDir/logs"))(image, message)
       context.become(receiveWithResults(artifacts, artifactsExpected - 1))
-    case ScanningComplete =>
-      log.info("Scanning Complete") // This doesn't mean that the extraction is complete though
+      if (artifactsExpected == 1)
+        extractionQueue ! Teardown
+    case ScanningComplete => // This doesn't mean that the extraction is complete though
+    case TeardownComplete => log.info("Done")
   }
 
   private def start(): Unit = {
@@ -74,8 +79,7 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
      * Those rows are bound to be fodder anyway, so it's not an issue if they do not get scanned.
      * TODO: It would be good to handle them at some point though.
      */
-    //    val artifactsToSkip = 35
-    val artifactsToSkip = 900
+    val artifactsToSkip = 35
     ItemExtractor.extractNumberOfItems(extractors.head)(scanItemNumber()).map(_ - artifactsToSkip)
   }
 
