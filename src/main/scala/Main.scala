@@ -33,9 +33,9 @@ object Main extends App {
     manualOCRTest(filename, 20, 180, 45, 40)
     println(extractor.extractMainStat(ImageIO.read(new File(filename))))
 
-    //    val filename = "F:/Misc/output/a1daf6af-cd28-44e5-9af7-ed32d898078f.png"
-    //    manualOCRTest(filename, 0, 0, 55, 25)
-    //    println("Done")
+    val image = scanner.scanRow(1).head
+    extractor.extractSubStats(image)
+    println("DONE")
   }
 
 

@@ -22,6 +22,7 @@ class ExtractionQueue(
 
   def receiver(bufferedQueue: List[BufferedImage], fileQueue: List[String], availableWorkers: Int): Receive = {
     case ExtractArtifact(image) =>
+      log.info(s"Extracting with bufferedQueue=${bufferedQueue.length}, fileQueue=${fileQueue.length}, availableWorkers=$availableWorkers")
       extractArtifact(image, bufferedQueue, fileQueue, availableWorkers)
     case message: ArtifactExtractionResult =>
       sendToMasterAndCheckoutQueues(message, bufferedQueue, fileQueue, availableWorkers + 1)
@@ -63,7 +64,7 @@ class ExtractionQueue(
   }
 
   private def teardown(): Unit = {
-    FileUtils.deleteDirectory(new File(workDir))
+    FileUtils.cleanDirectory(new File(workDir))
     sender() ! TeardownComplete
   }
 
