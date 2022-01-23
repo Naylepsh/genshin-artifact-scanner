@@ -1,6 +1,7 @@
 package Scan
 
-import Capture.ScreenCapture.{RectangleCoordinates, captureRectangle, saveToFile}
+import Capture.ScreenCapture.{RectangleCoordinates, captureRectangle}
+import Utils.Image.ImageUtils.save
 
 import java.awt.event.InputEvent.BUTTON1_DOWN_MASK
 import java.awt.image.BufferedImage
@@ -16,7 +17,7 @@ case class ArtifactScanner(workDir: String) extends ArtifactScannable {
 
   def scanItemsNumber(filename: String): Unit = {
     val image = captureRectangle(itemsNumberCoordinates)
-    saveToFile(image, filename)
+    save(image, filename)
   }
 
   def moveRowDown(amount: Int): Unit = {
