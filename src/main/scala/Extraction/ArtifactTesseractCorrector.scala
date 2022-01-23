@@ -40,7 +40,7 @@ object ArtifactTesseractCorrector {
       .replaceAll("[tl]", "1")
       .replaceAll("[a]", "4")
       .replaceFirst("H", "11")
-      .replaceAll("[s]", "5")
+      .replaceAll("[sS]", "5")
   }
 
   private def correctSeparator(statLine: String): String = {

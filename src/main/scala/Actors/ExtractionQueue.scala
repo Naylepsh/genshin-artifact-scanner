@@ -22,7 +22,6 @@ class ExtractionQueue(
 
   def receiver(bufferedQueue: List[BufferedImage], fileQueue: List[String], availableWorkers: Int): Receive = {
     case ExtractArtifact(image) =>
-      log.info(s"Extracting with bufferedQueue=${bufferedQueue.length}, fileQueue=${fileQueue.length}, availableWorkers=$availableWorkers")
       extractArtifact(image, bufferedQueue, fileQueue, availableWorkers)
     case message: ArtifactExtractionResult =>
       sendToMasterAndCheckoutQueues(message, bufferedQueue, fileQueue, availableWorkers + 1)
