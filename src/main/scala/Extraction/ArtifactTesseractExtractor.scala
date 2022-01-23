@@ -93,7 +93,7 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
     val setNameColor = new Color(92, 178, 86)
     val containsColor = lineContainsColor(image)(setNameColor) _
     val startX = 40
-    val endX = 50
+    val endX = 60
     val startY = 450
     val endY = 530
     val yDelta = 40

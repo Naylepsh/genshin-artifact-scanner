@@ -28,8 +28,10 @@ object Main extends App {
       println(result)
     }
 
-    val filename = "F:/Misc/output/11I3.png"
+    val filename = "F:/Misc/output/logs/ee007d93-04a3-4721-990d-58a6ca6db8f6.png"
     manualOCRTest(filename, 45, 350, 375, 120)
+    val image = ImageIO.read(new File(filename))
+    println(extractor.extractSubStats(image))
     //    manualOCRTest(filename, 20, 180, 45, 40)
 
     //    val image = scanner.scanRow(1).head
