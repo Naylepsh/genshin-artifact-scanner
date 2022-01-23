@@ -93,7 +93,7 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
     val setNameColor = new Color(92, 178, 86)
     val containsColor = lineContainsColor(image)(setNameColor) _
     val startX = 40
-    val endX = 50
+    val endX = 60
     val startY = 450
     val endY = 530
     val yDelta = 40
@@ -101,7 +101,7 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
 
     //    Artifacts are guaranteed at least one sub stat.
     //    Start looking for set name with the assumption,
-    //    that is has at least 2 sub stats
+    //    that it has at least 2 sub stats
     startY.to(endY).by(yDelta).zipWithIndex
       .find { case (y, _) => containsColor(startX, endX, y) }
       .map { case (_, index) => index + subStatLineOffset }

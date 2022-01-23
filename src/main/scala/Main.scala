@@ -2,7 +2,6 @@ import Actors.MasterActor
 import Actors.MasterActor.Start
 import Extraction._
 import Scan.ArtifactScanner
-import Utils.Image.ImageProcessor
 import akka.actor.ActorSystem
 import org.apache.commons.io.output.ByteArrayOutputStream
 
@@ -23,17 +22,20 @@ object Main extends App {
     def manualOCRTest(filename: String, x: Int, y: Int, width: Int, height: Int): Unit = {
       val image = ImageIO.read(new File(filename))
       val subImage = image.getSubimage(x, y, width, height)
-      val altered = ImageProcessor.monochrome(ImageProcessor.invert(subImage))
-      val result = tesseract.doOCR(altered)
+      //      val altered = ImageProcessor.monochrome(ImageProcessor.invert(subImage))
+      //      val result = tesseract.doOCR(altered)
+      val result = tesseract.doOCR(subImage)
       println(result)
     }
 
-    val filename = "F:/Misc/output/logs/ec606665-b80c-430c-9c50-9a2500b00c99.png"
-    manualOCRTest(filename, 20, 150, 210, 30)
-    manualOCRTest(filename, 20, 180, 45, 40)
+    val filename = "F:/Misc/output/logs/ee007d93-04a3-4721-990d-58a6ca6db8f6.png"
+    manualOCRTest(filename, 45, 350, 375, 120)
+    val image = ImageIO.read(new File(filename))
+    println(extractor.extractSubStats(image))
+    //    manualOCRTest(filename, 20, 180, 45, 40)
 
-    val image = scanner.scanRow(1).head
-    extractor.extractSubStats(image)
+    //    val image = scanner.scanRow(1).head
+    //    extractor.extractSubStats(image)
     println("DONE")
   }
 
