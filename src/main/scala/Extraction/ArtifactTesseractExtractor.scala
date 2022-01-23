@@ -157,7 +157,7 @@ object ArtifactTesseractExtractor {
   private val rgbToRarity = Map[Color, Int](
     new Color(188, 105, 50) -> 5,
     new Color(161, 86, 224) -> 4,
-    new Color(81, 128, 203) -> 3,
+    new Color(81, 127, 203) -> 3,
     new Color(42, 143, 114) -> 2
   )
 
