@@ -29,13 +29,13 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
 
   def extractLevel(image: BufferedImage): Try[Int] = {
     def transform(rawData: String): String =
-      ArtifactTesseractCorrector.correctLevel(ArtifactStringExtractor.correctNumericValue(rawData))
+      ArtifactTesseractCorrector.correctLevel(ArtifactTesseractCorrector.correctNumericValue(rawData))
 
     extractInt(getSubImage(image, levelCoordinates), transform)
   }
 
   def extractInt(image: BufferedImage): Try[Int] =
-    extractInt(image, ArtifactStringExtractor.correctNumericValue)
+    extractInt(image, ArtifactTesseractCorrector.correctNumericValue)
 
   def extractInt(image: BufferedImage, transform: String => String): Try[Int] = {
     val result = extractRawData(image)
@@ -65,7 +65,7 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
 
     val result = extractRawData(valueImage).flatMap(rawData => {
       extractRawData(nameImage)
-        .map(ArtifactStringExtractor.correctStatName)
+        .map(ArtifactTesseractCorrector.correctStatName)
         .map(ArtifactStringExtractor.extractName)
         .map(_.map(attachPercentageIfNeeded(rawData)))
     })
@@ -114,6 +114,7 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
   def extractSubStats(image: BufferedImage): Try[Map[String, Float]] = {
     val subStatsImage = getSubStatsSubImage(image)
     extractRawData(subStatsImage)
+      .map(ArtifactTesseractCorrector.correctSubStats)
       .map(ArtifactStringExtractor.extractSubStats)
       .map(subStatsListToMap)
   }
@@ -156,7 +157,7 @@ object ArtifactTesseractExtractor {
   private val rgbToRarity = Map[Color, Int](
     new Color(188, 105, 50) -> 5,
     new Color(161, 86, 224) -> 4,
-    new Color(81, 128, 203) -> 3,
+    new Color(81, 127, 203) -> 3,
     new Color(42, 143, 114) -> 2
   )
 

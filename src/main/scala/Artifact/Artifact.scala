@@ -45,7 +45,7 @@ object Artifact {
   private def validateRarity(artifact: Artifact): Unit = {
     val minRarity = 1
     val maxRarity = 5
-    require(minRarity < artifact.rarity && artifact.rarity <= maxRarity,
+    require(minRarity <= artifact.rarity && artifact.rarity <= maxRarity,
       s"Rarity=${artifact.rarity} outside of boundaries=[$minRarity, $maxRarity]")
   }
 

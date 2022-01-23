@@ -63,7 +63,7 @@ class ExtractionQueue(
   }
 
   private def teardown(): Unit = {
-    FileUtils.deleteDirectory(new File(workDir))
+    FileUtils.cleanDirectory(new File(workDir))
     sender() ! TeardownComplete
   }
 
