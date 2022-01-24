@@ -25,10 +25,19 @@ class GOODArtifactFormatterSpec extends AnyFlatSpec with should.Matchers {
     format(artifact)("rarity") shouldBe artifact.rarity
   }
 
+  "Format" should "save main stat name under mainStatKey" in {
+    format(artifact)("mainStatKey") shouldBe "hp"
+  }
+
   "Format" should "add viable placeholders for location and lock" in {
     val formatted = format(artifact)
     formatted("location") shouldBe ""
     formatted("lock") shouldBe false
+  }
+
+  "Format" should "save sub stats under substats" in {
+    val subStats = format(artifact)("substats").asInstanceOf[List[Map[String, Any]]]
+    subStats.length shouldBe artifact.subStats.size
   }
 }
 
