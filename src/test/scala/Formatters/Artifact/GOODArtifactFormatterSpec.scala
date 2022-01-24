@@ -20,6 +20,16 @@ class GOODArtifactFormatterSpec extends AnyFlatSpec with should.Matchers {
   "Format" should "save level under level" in {
     format(artifact)("level") shouldBe artifact.level
   }
+
+  "Format" should "save rarity under rarity" in {
+    format(artifact)("rarity") shouldBe artifact.rarity
+  }
+
+  "Format" should "add viable placeholders for location and lock" in {
+    val formatted = format(artifact)
+    formatted("location") shouldBe ""
+    formatted("lock") shouldBe false
+  }
 }
 
 object GOODArtifactFormatterSpec {
