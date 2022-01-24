@@ -9,8 +9,16 @@ class GOODArtifactFormatterSpec extends AnyFlatSpec with should.Matchers {
 
   import GOODArtifactFormatterSpec._
 
-  "Format" should "Capitalize set name and remove whitespace under setKey" in {
+  "Format" should "capitalize set name and remove whitespace under setKey" in {
     format(artifact)("setKey") shouldBe "HuskOfOpulentDreams"
+  }
+
+  "Format" should "lowercase slot name and keep only the first word under slotKey" in {
+    format(artifact)("slotKey") shouldBe "flower"
+  }
+
+  "Format" should "save level under level" in {
+    format(artifact)("level") shouldBe artifact.level
   }
 }
 
