@@ -4,7 +4,7 @@ import scala.io.Source
 import scala.util.{Failure, Try}
 
 case class Artifact(setName: String, slot: String, level: Int, rarity: Int,
-                    mainStat: String, mainStatValue: Double, subStats: Map[String, Float]) {
+                    mainStat: String, mainStatValue: Double, subStats: Map[String, Double]) {
 }
 
 object Artifact {
@@ -14,7 +14,7 @@ object Artifact {
   private val mainStats = Json.parse(Source.fromResource("mainStats.json").mkString)
 
   def apply(setName: String, slot: String, level: Int, rarity: Int,
-            mainStat: String, subStats: Map[String, Float]): Try[Artifact] = {
+            mainStat: String, subStats: Map[String, Double]): Try[Artifact] = {
     calcMainStatValue(mainStat, rarity, level) match {
       case Some(mainStatValue) =>
         Artifact(setName, slot, level, rarity, mainStat, mainStatValue, subStats)
@@ -25,7 +25,7 @@ object Artifact {
   }
 
   def apply(setName: String, slot: String, level: Int, rarity: Int,
-            mainStat: String, mainStatValue: Double, subStats: Map[String, Float]): Try[Artifact] = {
+            mainStat: String, mainStatValue: Double, subStats: Map[String, Double]): Try[Artifact] = {
     val artifact = new Artifact(setName, slot, level, rarity, mainStat, mainStatValue, subStats)
     validate(artifact).map(_ => artifact)
   }

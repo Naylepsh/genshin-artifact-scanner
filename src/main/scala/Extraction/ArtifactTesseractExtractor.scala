@@ -111,7 +111,7 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
   def lineContainsColor(image: BufferedImage)(color: Color)(startX: Int, endX: Int, y: Int): Boolean =
     startX to endX exists { x => new Color(image.getRGB(x, y)) == color }
 
-  def extractSubStats(image: BufferedImage): Try[Map[String, Float]] = {
+  def extractSubStats(image: BufferedImage): Try[Map[String, Double]] = {
     val subStatsImage = getSubStatsSubImage(image)
     extractRawData(subStatsImage)
       .map(ArtifactTesseractCorrector.correctSubStats)
@@ -164,6 +164,6 @@ object ArtifactTesseractExtractor {
   def getSubImage(image: BufferedImage, coordinates: RectangleCoordinates): BufferedImage =
     image.getSubimage(coordinates.topLeft.x, coordinates.topLeft.y, coordinates.width, coordinates.height)
 
-  def subStatsListToMap(subStats: List[(String, Float)]): Map[String, Float] =
-    subStats.foldLeft(Map[String, Float]())(_ + _)
+  def subStatsListToMap(subStats: List[(String, Double)]): Map[String, Double] =
+    subStats.foldLeft(Map[String, Double]())(_ + _)
 }

@@ -17,7 +17,7 @@ object ArtifactStringExtractor {
   def extractName(rawData: String): Option[String] =
     "[a-zA-Z ]+".r.findFirstIn(rawData).map(_.trim)
 
-  def extractSubStats(rawData: String): List[(String, Float)] = {
+  def extractSubStats(rawData: String): List[(String, Double)] = {
     val subStatLines = rawData.split("\n")
     val flatLines = subStatLines.filter(isFlatStat)
     val percentageLines = subStatLines.filter(isPercentageStat)
@@ -30,7 +30,7 @@ object ArtifactStringExtractor {
     matchedFlats ++ matchedPercentages
   }
 
-  private def extractSubStat(subStatLines: Iterable[String])(statName: String): Option[(String, Float)] = {
+  private def extractSubStat(subStatLines: Iterable[String])(statName: String): Option[(String, Double)] = {
     val statSubstring = if (isFlatStat(statName)) statName else statName.dropRight(1)
     subStatLines.find(_.contains(statSubstring))
       .map(extractFirstStatValue) match {

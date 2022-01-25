@@ -33,7 +33,7 @@ class ArtifactSpec extends AnyFlatSpec with should.Matchers {
 
   "Artifact constructor" should "calculate main stat value" in {
     val artifact = Artifact("Gambler", "Feather", 16, 4, "ATK",
-      Map[String, Float]("ATK%" -> 20.4f, "DEF%" -> 5.5f, "HP%" -> 5.5f, "DEF" -> 12))
+      Map("ATK%" -> 20.4, "DEF%" -> 5.5, "HP%" -> 5.5, "DEF" -> 12))
     artifact.success.value.mainStatValue shouldBe 232
   }
 
@@ -76,7 +76,7 @@ class ArtifactSpec extends AnyFlatSpec with should.Matchers {
   }
 
   "Validate" should "throw on number of sub stats too low" in {
-    val subStats = Map[String, Float]("ATK" -> 12, "Elemental Mastery" -> 12, "DEF" -> 12, "DEF%" -> 5.5f)
+    val subStats = Map[String, Double]("ATK" -> 12, "Elemental Mastery" -> 12, "DEF" -> 12, "DEF%" -> 5.5)
 
     //    1* and 2* artifacts can have 0 sub stats if they're on level lower than 4
     3 to 5 foreach (rarity => {
@@ -86,8 +86,8 @@ class ArtifactSpec extends AnyFlatSpec with should.Matchers {
   }
 
   "Validate" should "throw on number of sub stats too high" in {
-    val subStats = Map[String, Float]("ATK" -> 12, "Elemental Mastery" -> 12,
-      "DEF" -> 12, "DEF%" -> 5.5f, "ATK%" -> 5.5f)
+    val subStats = Map[String, Double]("ATK" -> 12, "Elemental Mastery" -> 12,
+      "DEF" -> 12, "DEF%" -> 5.5, "ATK%" -> 5.5)
 
     1 to 5 foreach (rarity => {
       val artifact = new Artifact("Gambler", "Flower", 0, rarity, "HP", 430, subStats.take(rarity))
