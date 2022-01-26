@@ -1,7 +1,7 @@
 package Extraction
 
-import Artifact.Artifact
 import Capture.ScreenCapture.RectangleCoordinates
+import Entities.Artifact
 import Utils.Image.ImageProcessor.{invert, monochrome}
 
 import java.awt.image.BufferedImage

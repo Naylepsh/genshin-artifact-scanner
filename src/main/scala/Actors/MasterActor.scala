@@ -1,9 +1,9 @@
 package Actors
 
 import Actors.ExtractionQueue.{Teardown, TeardownComplete}
-import Artifact.Artifact
 import Capture.ScreenCapture
 import Capture.ScreenCapture.RectangleCoordinates
+import Entities.Artifact
 import Extraction.{ArtifactFromImageExtractable, ItemExtractor, NumberExtractable}
 import Scan.ArtifactScannable
 import Utils.Logging.ImageLogger

@@ -1,4 +1,4 @@
-package Artifact
+package Entities
 
 import scala.io.Source
 import scala.util.{Failure, Try}

@@ -1,6 +1,6 @@
 package Formatters
 
-import Artifact.Artifact
+import Entities.Artifact
 
 
 object GOODFormat {

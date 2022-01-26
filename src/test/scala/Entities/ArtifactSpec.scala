@@ -1,4 +1,4 @@
-package Artifact
+package Entities
 
 import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.TryValues.convertTryToSuccessOrFailure

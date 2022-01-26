@@ -1,6 +1,6 @@
 package Extraction
 
-import Artifact.Artifact
+import Entities.Artifact
 import Extraction.ArtifactFromImageExtractorSpec._
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec._

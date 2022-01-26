@@ -1,6 +1,6 @@
 package Actors
 
-import Artifact.Artifact
+import Entities.Artifact
 import Extraction.ArtifactFromImageExtractable
 import akka.actor.{Actor, Props}
 

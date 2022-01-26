@@ -1,6 +1,6 @@
 package Utils.Serializers
 
-import Artifact.Artifact
+import Entities.Artifact
 import Formatters.GOODFormat.{GOODArtifact, GOODExport, GOODSubStat}
 import Utils.Serializers.JSONStringSerializer.JSONStringEnrichment
 import Utils.Serializers.PlayJSONStringSerializer._

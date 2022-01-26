@@ -1,6 +1,6 @@
 package Formatters
 
-import Artifact.Artifact
+import Entities.Artifact
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
