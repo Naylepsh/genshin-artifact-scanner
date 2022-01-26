@@ -31,6 +31,8 @@ object GOODFormat {
                           location: String, lock: Boolean, substats: List[GOODSubStat]) {
   }
 
+  case class GOODExport(format: String = "GOOD", version: Int, source: String, artifacts: List[GOODArtifact])
+
   object GOODArtifact {
     def apply(artifact: Artifact): GOODArtifact = {
       val setKey = artifact.setName.replaceAll("'", "").split(" ").map(_.capitalize).mkString("")
@@ -45,6 +47,12 @@ object GOODFormat {
       }
 
       new GOODArtifact(setKey, slotKey, level, rarity, mainStatKey, location, lock, subStats)
+    }
+  }
+
+  object GOODExport {
+    def apply(artifacts: List[Artifact]): GOODExport = {
+      new GOODExport("GOOD", 1, "", artifacts.map(GOODArtifact.apply))
     }
   }
 }
