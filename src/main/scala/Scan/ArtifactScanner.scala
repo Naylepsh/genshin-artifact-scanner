@@ -34,6 +34,9 @@ case class ArtifactScanner(workDir: String) extends ArtifactScannable {
 
   private def scanArtifact(point: Point): BufferedImage = {
     click(point)
+    // While not ideal, clicking too fast causes the game not to register the click,
+    // which then causes the scanner take multiple scans of the same artifact image, but skip others
+    Thread.sleep(100)
     captureRectangle(artifactCoordinates)
   }
 
