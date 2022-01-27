@@ -6,13 +6,12 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 object PlayJSONStringSerializer {
-  implicit val goodSubStatWriteFormat: OWrites[GOODSubStat] = Json.writes[GOODSubStat]
-  implicit val goodSubStatReadFormat: Reads[GOODSubStat] = (
+  implicit val goodSubStatWrites: OWrites[GOODSubStat] = Json.writes[GOODSubStat]
+  implicit val goodSubStatReads: Reads[GOODSubStat] = (
     (JsPath \ "key").read[String] and (JsPath \ "value").read[Double]
     ) (GOODSubStat)
-  implicit val goodArtifactWriteFormat: OWrites[GOODArtifact] = Json.writes[GOODArtifact]
-  //  implicit val goodArtifactsWrite: OWrites[List[GOODArtifact]] = Json.writes[List[GOODArtifact]]
-  implicit val goodExportFormat: OWrites[GOODExport] = Json.writes[GOODExport]
+  implicit val goodArtifactWrites: OWrites[GOODArtifact] = Json.writes[GOODArtifact]
+  implicit val goodExportWrites: OWrites[GOODExport] = Json.writes[GOODExport]
 
   implicit object GOODArtifactSerializer extends JSONStringSerializable[GOODArtifact] {
     override def toJSONString(artifact: GOODArtifact): String = Json.toJson(artifact).toString

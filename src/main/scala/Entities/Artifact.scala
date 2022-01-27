@@ -26,7 +26,9 @@ object Artifact {
 
   def apply(setName: String, slot: String, level: Int, rarity: Int,
             mainStat: String, mainStatValue: Double, subStats: Map[String, Double]): Try[Artifact] = {
-    val artifact = new Artifact(setName, slot, level, rarity, mainStat, mainStatValue, subStats)
+    val cleanMainStatValue = trimAfterFirstDecimal(mainStatValue)
+    val cleanSubStats = subStats.map { case (key, value) => key -> trimAfterFirstDecimal(value) }
+    val artifact = new Artifact(setName, slot, level, rarity, mainStat, cleanMainStatValue, cleanSubStats)
     validate(artifact).map(_ => artifact)
   }
 
@@ -58,6 +60,9 @@ object Artifact {
     val subStats = artifact.subStats.size
     require(min <= subStats && subStats <= max, s"Number of substats=$subStats outside of boundaries=[$min, $max]")
   }
+
+  private def trimAfterFirstDecimal(value: Double): Double =
+    (math floor value * 10) / 10
 
   def calcMainStatValue(statName: String, rarity: Int, level: Int): Option[Double] = {
     // There is no 0* rarity, hence why - 1

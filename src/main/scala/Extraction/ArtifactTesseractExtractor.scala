@@ -120,7 +120,8 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
   }
 
   def extractRarity(image: BufferedImage): Int =
-    rgbToRarity.getOrElse(new Color(image.getRGB(rarityPoint.x, rarityPoint.y)), 1)
+    rgbToRarity(new Color(image.getRGB(rarityPoint.x, rarityPoint.y)))
+
 
   private def getSetNameSubImage(image: BufferedImage): BufferedImage =
     getSubStatsDependantSubImage(subStatsNumberToSetNameCoordinates)(image)
@@ -154,16 +155,44 @@ object ArtifactTesseractExtractor {
     4 -> RectangleCoordinates(new Point(45, 350), new Point(420, 510)),
   )
 
-  private val rgbToRarity = Map[Color, Int](
-    new Color(188, 105, 50) -> 5,
-    new Color(161, 86, 224) -> 4,
-    new Color(81, 127, 203) -> 3,
-    new Color(42, 143, 114) -> 2
-  )
+  //  private val rgbToRarity = Map[Color, Int](
+  //    new Color(188, 105, 50) -> 5, // 343
+  //    new Color(161, 86, 224) -> 4, // 491
+  //    new Color(81, 127, 203) -> 3, // 411
+  //    new Color(42, 143, 114) -> 2 // 299
+  //  )
 
   def getSubImage(image: BufferedImage, coordinates: RectangleCoordinates): BufferedImage =
     image.getSubimage(coordinates.topLeft.x, coordinates.topLeft.y, coordinates.width, coordinates.height)
 
   def subStatsListToMap(subStats: List[(String, Double)]): Map[String, Double] =
     subStats.foldLeft(Map[String, Double]())(_ + _)
+
+  private def rgbToRarity(color: Color): Int = {
+    def isLow(value: Int): Boolean = value < 60
+
+    def isMedium(value: Int): Boolean = 60 <= value && value < 140
+
+    def isHigh(value: Int): Boolean = 140 <= value
+
+    val r = color.getRed
+    val g = color.getGreen
+    val b = color.getBlue
+
+    val isOrangeLike = isHigh(r) && isMedium(g) && isLow(b)
+    val isPurpleLike = isHigh(r) && !isHigh(g) && isHigh(b)
+    val isBlueLike = !isHigh(r) && !isHigh(g) && isHigh(b)
+    val isGreenLike = isLow(r) && isHigh(g) && !isHigh(b)
+
+    if (isOrangeLike)
+      5
+    else if (isPurpleLike)
+      4
+    else if (isBlueLike)
+      3
+    else if (isGreenLike)
+      2
+    else
+      1
+  }
 }
