@@ -5,12 +5,17 @@ import Capture.ScreenCapture
 import Capture.ScreenCapture.RectangleCoordinates
 import Entities.Artifact
 import Extraction.{ArtifactFromImageExtractable, ItemExtractor, NumberExtractable}
+import Formatters.GOODFormat.GOODExport
 import Scan.ArtifactScannable
 import Utils.Logging.ImageLogger
+import Utils.Serializers.JSONStringSerializer.JSONStringEnrichment
+import Utils.Serializers.PlayJSONStringSerializer._
 import akka.actor.{Actor, ActorLogging, Props}
 
 import java.awt.Point
 import java.awt.image.BufferedImage
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Paths}
 import scala.util.Try
 
 class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImageExtractable with NumberExtractable])
@@ -46,16 +51,19 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
       log.info(s"${artifactsExpected - 1} artifacts left to extract.")
       context.become(receiveWithResults(artifact :: artifacts, artifactsExpected - 1))
       if (artifactsExpected == 1)
-        extractionQueue ! Teardown
+        self ! ExportArtifacts(artifacts)
     case ArtifactExtractionFailure(failure, image) =>
       val message = s"Failed artifact extraction due to $failure"
       log.error(message)
       logImage(image, message)
       context.become(receiveWithResults(artifacts, artifactsExpected - 1))
       if (artifactsExpected == 1)
-        extractionQueue ! Teardown
+        self ! ExportArtifacts(artifacts)
     case ScanningComplete => // This doesn't mean that the extraction is complete though
     case TeardownComplete => log.info("Done")
+    case ExportArtifacts(artifacts: List[Artifact]) =>
+      exportArtifacts(artifacts)
+      extractionQueue ! Teardown
   }
 
   private def start(): Unit = {
@@ -86,12 +94,18 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
 
   private def scanItemNumber(): BufferedImage =
     ScreenCapture.captureRectangle(itemsNumberCoordinates)
+
+  private def exportArtifacts(artifacts: List[Artifact]): Unit = {
+    val data = GOODExport(artifacts).toJSONString
+    Files.write(Paths.get(s"$workDir/artifact-export.json"), data.getBytes(StandardCharsets.UTF_8))
+  }
 }
 
 object MasterActor {
   def props(scanner: ArtifactScannable, extractors: List[ArtifactFromImageExtractable with NumberExtractable]): Props =
     Props(new MasterActor(scanner, extractors))
 
+  private case class ExportArtifacts(artifacts: List[Artifact])
 
   object Start
 }
