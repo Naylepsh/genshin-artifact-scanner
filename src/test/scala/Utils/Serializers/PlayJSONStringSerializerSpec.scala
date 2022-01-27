@@ -1,6 +1,7 @@
 package Utils.Serializers
 
 import Entities.Artifact
+import Entities.Artifact.StatNames.{critDmgPercent, critRatePercent, energyRechargePercent, hpPercent}
 import Formatters.GOODFormat.{GOODArtifact, GOODExport, GOODSubStat}
 import Utils.Serializers.JSONStringSerializer.JSONStringEnrichment
 import Utils.Serializers.PlayJSONStringSerializer._
@@ -48,6 +49,7 @@ class PlayJSONStringSerializerSpec extends AnyFlatSpec with should.Matchers {
 object PlayJSONStringSerializerSpec {
   private val artifact = Artifact(
     setName = "Husk of Opulent Dreams", slot = "Flower of Life", level = 20, rarity = 5, mainStat = "HP",
-    subStats = Map("Energy Recharge%" -> 11.0f, "CRIT DMG%" -> 17.9f, "CRIT Rate%" -> 3.5f, "HP%" -> 8.2f)).get
+    subStats = Map(energyRechargePercent -> 11.0f, critDmgPercent -> 17.9f,
+      critRatePercent -> 3.5f, hpPercent -> 8.2f)).get
 }
 

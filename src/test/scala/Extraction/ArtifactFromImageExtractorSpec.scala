@@ -1,6 +1,7 @@
 package Extraction
 
 import Entities.Artifact
+import Entities.Artifact.StatNames._
 import Extraction.ArtifactFromImageExtractorSpec._
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec._
@@ -103,10 +104,10 @@ class ArtifactFromImageExtractorSpec extends AnyFlatSpec with should.Matchers {
 
     val expectedArtifact = new Artifact(setName = "Lavawalker", slot = "Goblet", level = 4, rarity = 5,
       mainStat = "Electro DMG Bonus%", mainStatValue = 14.9, subStats = Map(
-        "HP" -> 269,
-        "DEF" -> 19,
-        "CRIT DMG%" -> 7.0f,
-        "Elemental Mastery" -> 16
+        hpFlat -> 269,
+        defFlat -> 19,
+        critDmgPercent -> 7.0f,
+        elementalMastery -> 16
       )
     )
     artifact.success.value shouldBe expectedArtifact
@@ -121,5 +122,4 @@ object ArtifactFromImageExtractorSpec {
 
   def getImage(pathToImage: String): BufferedImage =
     ImageIO.read(getClass.getResourceAsStream(pathToImage))
-
 }

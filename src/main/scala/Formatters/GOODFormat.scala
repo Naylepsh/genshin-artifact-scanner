@@ -43,7 +43,7 @@ object GOODFormat {
       val location = ""
       val lock = false
       val subStats = artifact.subStats.toList.map {
-        case (key, value) => GOODSubStat(statNameMap(key), value)
+        case (key, value) => GOODSubStat(statNameMap(key.toString), value)
       }
 
       new GOODArtifact(setKey, slotKey, level, rarity, mainStatKey, location, lock, subStats)

@@ -2,6 +2,7 @@ package Extraction
 
 import Capture.ScreenCapture.RectangleCoordinates
 import Entities.Artifact
+import Entities.Artifact.StatNames.StatNames
 import Utils.Image.ImageProcessor.{invert, monochrome}
 
 import java.awt.image.BufferedImage
@@ -111,7 +112,7 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
   def lineContainsColor(image: BufferedImage)(color: Color)(startX: Int, endX: Int, y: Int): Boolean =
     startX to endX exists { x => new Color(image.getRGB(x, y)) == color }
 
-  def extractSubStats(image: BufferedImage): Try[Map[String, Double]] = {
+  def extractSubStats(image: BufferedImage): Try[Map[StatNames, Double]] = {
     val subStatsImage = getSubStatsSubImage(image)
     extractRawData(subStatsImage)
       .map(ArtifactTesseractCorrector.correctSubStats)
@@ -155,18 +156,11 @@ object ArtifactTesseractExtractor {
     4 -> RectangleCoordinates(new Point(45, 350), new Point(420, 510)),
   )
 
-  //  private val rgbToRarity = Map[Color, Int](
-  //    new Color(188, 105, 50) -> 5, // 343
-  //    new Color(161, 86, 224) -> 4, // 491
-  //    new Color(81, 127, 203) -> 3, // 411
-  //    new Color(42, 143, 114) -> 2 // 299
-  //  )
-
   def getSubImage(image: BufferedImage, coordinates: RectangleCoordinates): BufferedImage =
     image.getSubimage(coordinates.topLeft.x, coordinates.topLeft.y, coordinates.width, coordinates.height)
 
-  def subStatsListToMap(subStats: List[(String, Double)]): Map[String, Double] =
-    subStats.foldLeft(Map[String, Double]())(_ + _)
+  def subStatsListToMap(subStats: List[(StatNames, Double)]): Map[StatNames, Double] =
+    subStats.foldLeft(Map[StatNames, Double]())(_ + _)
 
   private def rgbToRarity(color: Color): Int = {
     def isLow(value: Int): Boolean = value < 60

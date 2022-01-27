@@ -1,6 +1,7 @@
 package Formatters
 
 import Entities.Artifact
+import Entities.Artifact.StatNames._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
@@ -44,5 +45,6 @@ class GOODFormatSpec extends AnyFlatSpec with should.Matchers {
 object GOODFormatSpec {
   private val artifact = Artifact(
     setName = "Husk of Opulent Dreams", slot = "Flower of Life", level = 20, rarity = 5, mainStat = "HP",
-    subStats = Map("Energy Recharge%" -> 11.0f, "CRIT DMG%" -> 17.9f, "CRIT Rate%" -> 3.5f, "HP%" -> 8.2f)).get
+    subStats = Map(energyRechargePercent -> 11.0f, critDmgPercent -> 17.9f,
+      critRatePercent -> 3.5f, hpPercent -> 8.2f)).get
 }

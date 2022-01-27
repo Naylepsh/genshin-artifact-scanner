@@ -1,8 +1,10 @@
 package Extraction
 
-import Extraction.ArtifactStringExtractor.{isFlatStat, subStats}
+import Extraction.ArtifactStringExtractor.{flatSubStats, isFlatStat, percentSubStats}
 
 object ArtifactTesseractCorrector {
+  private val subStats = (flatSubStats ++ percentSubStats).map(_.toString)
+
   def correctLevel(levelRawData: String): String = {
     levelRawData.replaceFirst("117", "17") // Somehow '+' might have gotten recognized as 1
   }
