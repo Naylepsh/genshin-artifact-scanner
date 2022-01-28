@@ -65,7 +65,7 @@ object Artifact {
   }
 
   private def trimAfterFirstDecimal(value: Double): Double =
-    (math floor value * 10) / 10
+    (math rint value * 10) / 10
 
   def calcMainStatValue(statName: StatName, rarity: Int, level: Int): Option[Double] = {
     // There is no 0* rarity, hence why - 1
