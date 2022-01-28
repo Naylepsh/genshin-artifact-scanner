@@ -9,6 +9,10 @@ object ArtifactTesseractCorrector {
     levelRawData.replaceFirst("117", "17") // Somehow '+' might have gotten recognized as 1
   }
 
+  def correctSetName(setName: String): String = {
+    setName.replaceAll("’", "").trim
+  }
+
   def correctStatName(statName: String): String = {
     /**
      * Fix 'common' typos in OCR. Should handle stat names and set names.

@@ -89,7 +89,7 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
      * TODO: It would be good to handle them at some point though.
      */
     //    val artifactsToSkip = 35
-    val artifactsToSkip = 1090
+    val artifactsToSkip = 900
     ItemExtractor.extractNumberOfItems(extractors.head)(scanItemNumber()).map(_ - artifactsToSkip)
   }
 

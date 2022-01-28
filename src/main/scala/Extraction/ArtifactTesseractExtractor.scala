@@ -89,7 +89,9 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
 
   def extractSetName(image: BufferedImage): Try[SetName] = {
     val setNameImage = getSetNameSubImage(image)
-    val result = extractRawData(setNameImage).map(ArtifactStringExtractor.extractSetName)
+    val result = extractRawData(setNameImage)
+      .map(ArtifactTesseractCorrector.correctSetName)
+      .map(ArtifactStringExtractor.extractSetName)
     tryOptToTry(new RuntimeException("Could not set name"))(result)
   }
 
@@ -143,10 +145,10 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
 object ArtifactTesseractExtractor {
   private val levelCoordinates = RectangleCoordinates(new Point(30, 310), new Point(80, 340))
   private val subStatsNumberToSetNameCoordinates = Map(
-    1 -> RectangleCoordinates(new Point(20, 405), new Point(335, 435)),
-    2 -> RectangleCoordinates(new Point(20, 440), new Point(335, 470)),
-    3 -> RectangleCoordinates(new Point(20, 475), new Point(335, 505)),
-    4 -> RectangleCoordinates(new Point(20, 510), new Point(335, 540))
+    1 -> RectangleCoordinates(new Point(20, 405), new Point(360, 435)),
+    2 -> RectangleCoordinates(new Point(20, 440), new Point(360, 470)),
+    3 -> RectangleCoordinates(new Point(20, 475), new Point(360, 505)),
+    4 -> RectangleCoordinates(new Point(20, 510), new Point(360, 540))
   )
   private val slotCoordinates = RectangleCoordinates(new Point(20, 65), new Point(300, 95))
   private val mainStatValueCoordinates = RectangleCoordinates(new Point(20, 180), new Point(165, 220))

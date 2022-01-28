@@ -28,7 +28,7 @@ object ArtifactStringExtractor {
     extractName(rawData).flatMap(SetName.fromString)
 
   def extractName(rawData: String): Option[String] =
-    "[a-zA-Z ]+".r.findFirstIn(rawData).map(_.trim)
+    "[a-zA-Z' ]+".r.findFirstIn(rawData).map(_.trim)
 
 
   def extractSubStats(rawData: String): List[(StatName, Double)] = {
