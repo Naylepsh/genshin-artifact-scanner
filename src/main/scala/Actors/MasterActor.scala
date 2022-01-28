@@ -88,8 +88,7 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
      * Those rows are bound to be fodder anyway, so it's not an issue if they do not get scanned.
      * TODO: It would be good to handle them at some point though.
      */
-    //    val artifactsToSkip = 35
-    val artifactsToSkip = 900
+    val artifactsToSkip = 35
     ItemExtractor.extractNumberOfItems(extractors.head)(scanItemNumber()).map(_ - artifactsToSkip)
   }
 

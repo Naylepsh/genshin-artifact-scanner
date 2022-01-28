@@ -89,10 +89,11 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
 
   def extractSetName(image: BufferedImage): Try[SetName] = {
     val setNameImage = getSetNameSubImage(image)
-    val result = extractRawData(setNameImage)
+    val rawData = extractRawData(setNameImage)
+    val result = rawData
       .map(ArtifactTesseractCorrector.correctSetName)
       .map(ArtifactStringExtractor.extractSetName)
-    tryOptToTry(new RuntimeException("Could not set name"))(result)
+    tryOptToTry(new RuntimeException(s"Could not detect set name on $rawData"))(result)
   }
 
   def extractSubStatsNumber(image: BufferedImage): Int = {

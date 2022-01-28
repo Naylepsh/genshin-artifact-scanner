@@ -28,7 +28,7 @@ object Main extends App {
       println(result)
     }
 
-    val filename = "F:/Misc/output/logs/0e95876a-8fa2-440a-a312-ccfc82304730.png"
+    val filename = "F:/Misc/output/logs/9c682200-2b00-449d-aedc-936dfdbf126c.png"
     //    manualOCRTest(filename, 45, 350, 375, 120)
     val image = ImageIO.read(new File(filename))
     println(extractor.extractSetName(image))

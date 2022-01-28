@@ -10,7 +10,12 @@ object ArtifactTesseractCorrector {
   }
 
   def correctSetName(setName: String): String = {
-    setName.replaceAll("’", "").trim
+    setName
+      .replaceAll("’", "'")
+      .replaceAll("'+", "'")
+      .replaceFirst("Miracte", "Miracle")
+      .replaceFirst("sojourner", "Sojourner")
+      .trim
   }
 
   def correctStatName(statName: String): String = {
