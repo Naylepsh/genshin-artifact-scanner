@@ -1,5 +1,6 @@
 package Entities
 
+import Entities.Artifact.SetName.gambler
 import Entities.Artifact.StatName._
 import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
@@ -30,18 +31,18 @@ class ArtifactSpec extends AnyFlatSpec with should.Matchers {
   }
 
   "Artifact constructor" should "calculate main stat value" in {
-    val artifact = Artifact("Gambler", "Feather", 16, 4, atkFlat,
+    val artifact = Artifact(gambler, "Feather", 16, 4, atkFlat,
       Map(atkPercent -> 20.4, defPercent -> 5.5, hpPercent -> 5.5, defFlat -> 12))
     artifact.success.value.mainStatValue shouldBe 232
   }
 
   "Artifact constructor" should "return failure on invalid input" in {
-    val artifact = Artifact("Gambler", "Flower", -1, -1, hpFlat, Map())
+    val artifact = Artifact(gambler, "Flower", -1, -1, hpFlat, Map())
     artifact.isFailure shouldBe true
   }
 
   "Validate" should "throw on level too low" in {
-    val artifact = new Artifact("Gambler", "Flower", -1, 5, hpFlat, 5, Map(atkFlat -> 12))
+    val artifact = new Artifact(gambler, "Flower", -1, 5, hpFlat, 5, Map(atkFlat -> 12))
     Artifact.validate(artifact).isFailure shouldBe true
   }
 
@@ -49,27 +50,27 @@ class ArtifactSpec extends AnyFlatSpec with should.Matchers {
     List(1, 2).foreach(rarity => {
       val minLevel = 5
       val level = minLevel + Random.nextInt(Int.MaxValue - minLevel)
-      val artifact = new Artifact("Gambler", "Flower", level, rarity, hpFlat, 5, Map(atkFlat -> 12))
+      val artifact = new Artifact(gambler, "Flower", level, rarity, hpFlat, 5, Map(atkFlat -> 12))
       Artifact.validate(artifact).isFailure shouldBe true
     })
     List(3, 4, 5).foreach(rarity => {
       val minLevel = rarity * 4 + 1
       val level = minLevel + Random.nextInt(Integer.MAX_VALUE - minLevel)
-      val artifact = new Artifact("Gambler", "Flower", level, rarity, hpFlat, 5, Map(atkFlat -> 12))
+      val artifact = new Artifact(gambler, "Flower", level, rarity, hpFlat, 5, Map(atkFlat -> 12))
       Artifact.validate(artifact).isFailure shouldBe true
     })
   }
 
   "Validate" should "throw on rarity too low" in {
     val rarity = Random.nextInt(Int.MaxValue).abs
-    val artifact = new Artifact("Gambler", "Flower", 0, rarity, hpFlat, 5, Map(atkFlat -> 12))
+    val artifact = new Artifact(gambler, "Flower", 0, rarity, hpFlat, 5, Map(atkFlat -> 12))
     Artifact.validate(artifact).isFailure shouldBe true
   }
 
   "Validate" should "throw on rarity too high" in {
     val maxRarity = 5
     val rarity = Random.nextInt(Int.MaxValue - maxRarity) + maxRarity
-    val artifact = new Artifact("Gambler", "Flower", 0, rarity, hpFlat, 5, Map(atkFlat -> 12))
+    val artifact = new Artifact(gambler, "Flower", 0, rarity, hpFlat, 5, Map(atkFlat -> 12))
     Artifact.validate(artifact).isFailure shouldBe true
   }
 
@@ -79,7 +80,7 @@ class ArtifactSpec extends AnyFlatSpec with should.Matchers {
 
     //    1* and 2* artifacts can have 0 sub stats if they're on level lower than 4
     3 to 5 foreach (rarity => {
-      val artifact = new Artifact("Gambler", "Flower", 0, rarity, hpFlat, 430, subStats.take(rarity - 3))
+      val artifact = new Artifact(gambler, "Flower", 0, rarity, hpFlat, 430, subStats.take(rarity - 3))
       Artifact.validate(artifact).isFailure shouldBe true
     })
   }
@@ -89,13 +90,13 @@ class ArtifactSpec extends AnyFlatSpec with should.Matchers {
       defFlat -> 12, defPercent -> 5.5, atkPercent -> 5.5)
 
     1 to 5 foreach (rarity => {
-      val artifact = new Artifact("Gambler", "Flower", 0, rarity, hpFlat, 430, subStats.take(rarity))
+      val artifact = new Artifact(gambler, "Flower", 0, rarity, hpFlat, 430, subStats.take(rarity))
       Artifact.validate(artifact).isFailure shouldBe true
     })
   }
 
   "Validate" should "do nothing on proper artifact" in {
-    val artifact = new Artifact("Gambler", "Flower", 0, 3, hpFlat, 430, Map(atkFlat -> 12))
+    val artifact = new Artifact(gambler, "Flower", 0, 3, hpFlat, 430, Map(atkFlat -> 12))
     Artifact.validate(artifact)
   }
 }

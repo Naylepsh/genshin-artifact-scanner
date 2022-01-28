@@ -36,7 +36,11 @@ object GOODFormat {
 
   object GOODArtifact {
     def apply(artifact: Artifact): GOODArtifact = {
-      val setKey = artifact.setName.replaceAll("'", "").split(" ").map(_.capitalize).mkString("")
+      val setKey = artifact.setName.toString
+        .replaceAll("'", "")
+        .split(" ")
+        .map(_.capitalize)
+        .mkString("")
       val slotKey = artifact.slot.split(" ").head.toLowerCase
       val level = artifact.level
       val rarity = artifact.rarity

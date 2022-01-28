@@ -1,11 +1,12 @@
 package Entities
 
+import Entities.Artifact.SetName.SetName
 import Entities.Artifact.StatName.StatName
 
 import scala.io.Source
 import scala.util.{Failure, Try}
 
-case class Artifact(setName: String, slot: String, level: Int, rarity: Int,
+case class Artifact(setName: SetName, slot: String, level: Int, rarity: Int,
                     mainStat: StatName, mainStatValue: Double, subStats: Map[StatName, Double]) {
 }
 
@@ -15,7 +16,7 @@ object Artifact {
 
   private val mainStats = Json.parse(Source.fromResource("mainStats.json").mkString)
 
-  def apply(setName: String, slot: String, level: Int, rarity: Int,
+  def apply(setName: SetName, slot: String, level: Int, rarity: Int,
             mainStat: StatName, subStats: Map[StatName, Double]): Try[Artifact] = {
     calcMainStatValue(mainStat, rarity, level) match {
       case Some(mainStatValue) =>
@@ -26,7 +27,7 @@ object Artifact {
     }
   }
 
-  def apply(setName: String, slot: String, level: Int, rarity: Int,
+  def apply(setName: SetName, slot: String, level: Int, rarity: Int,
             mainStat: StatName, mainStatValue: Double, subStats: Map[StatName, Double]): Try[Artifact] = {
     val cleanMainStatValue = trimAfterFirstDecimal(mainStatValue)
     val cleanSubStats = subStats.map { case (key, value) => key -> trimAfterFirstDecimal(value) }
@@ -77,6 +78,51 @@ object Artifact {
       "Elemental DMG Bonus%"
     else
       statName
+  }
+
+  object SetName extends Enumeration {
+    type SetName = Value
+
+    val adventurer: Artifact.SetName.Value = Value("Adventurer")
+    val archaicPetra: Artifact.SetName.Value = Value("Archaic Petra")
+    val berserker: Artifact.SetName.Value = Value("Berserker")
+    val blizzardStrayer: Artifact.SetName.Value = Value("Blizzard Strayer")
+    val bloodstainedChivalry: Artifact.SetName.Value = Value("Bloodstained Chivalry")
+    val braveHeart: Artifact.SetName.Value = Value("Brave Heart")
+    val crimsonWitchOfFlames: Artifact.SetName.Value = Value("Crimson Witch of Flames")
+    val defendersWill: Artifact.SetName.Value = Value("Defender's Will")
+    val emblemOfSeveredFate: Artifact.SetName.Value = Value("Emblem of Severed Fate")
+    val gambler: Artifact.SetName.Value = Value("Gambler")
+    val gladiatorsFinale: Artifact.SetName.Value = Value("Gladiator's Finale")
+    val heartOfDepth: Artifact.SetName.Value = Value("Heart of Depth")
+    val huskOfOpulentDreams: Artifact.SetName.Value = Value("Husk of Opulent Dreams")
+    val instructor: Artifact.SetName.Value = Value("Instructor")
+    val lavawalker: Artifact.SetName.Value = Value("Lavawalker")
+    val luckyDog: Artifact.SetName.Value = Value("Lucky Dog")
+    val maidenBeloved: Artifact.SetName.Value = Value("Maiden Beloved")
+    val martialArtist: Artifact.SetName.Value = Value("Martial Artist")
+    val noblesseOblige: Artifact.SetName.Value = Value("Noblesse Oblige")
+    val oceanHuedClam: Artifact.SetName.Value = Value("Ocean-Hued Clam")
+    val paleFlame: Artifact.SetName.Value = Value("Pale Flame")
+    val prayersForDestiny: Artifact.SetName.Value = Value("Prayers for Destiny")
+    val prayersForIllumination: Artifact.SetName.Value = Value("Prayers for Illumination")
+    val prayersForWisdom: Artifact.SetName.Value = Value("Prayers for Wisdom")
+    val prayersToSpringtime: Artifact.SetName.Value = Value("Prayers to Springtime")
+    val resolutionOfSojourner: Artifact.SetName.Value = Value("Resolution of Sojourner")
+    val retracingBolide: Artifact.SetName.Value = Value("Retracing Bolide")
+    val scholar: Artifact.SetName.Value = Value("Scholar")
+    val shimenawasReminiscence: Artifact.SetName.Value = Value("Shimenawa's Reminiscence")
+    val tenacityOfTheMillelith: Artifact.SetName.Value = Value("Tenacity of the Millelith")
+    val theExile: Artifact.SetName.Value = Value("The Exile")
+    val thunderingFury: Artifact.SetName.Value = Value("Thundering Fury")
+    val thundersoother: Artifact.SetName.Value = Value("Thundersoother")
+    val tinyMiracle: Artifact.SetName.Value = Value("Tiny Miracle")
+    val travelingDoctor: Artifact.SetName.Value = Value("Traveling Doctor")
+    val viridescentVenerer: Artifact.SetName.Value = Value("Viridescent Venerer")
+    val wanderersTroupe: Artifact.SetName.Value = Value("Wanderer's Troupe")
+
+    def fromString(string: String): Option[SetName.Value] =
+      values.find(_.toString == string)
   }
 
   object StatName extends Enumeration {

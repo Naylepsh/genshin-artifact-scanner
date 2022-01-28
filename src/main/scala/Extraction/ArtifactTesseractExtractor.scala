@@ -2,6 +2,7 @@ package Extraction
 
 import Capture.ScreenCapture.RectangleCoordinates
 import Entities.Artifact
+import Entities.Artifact.SetName.SetName
 import Entities.Artifact.StatName
 import Entities.Artifact.StatName.StatName
 import Utils.Image.ImageProcessor.{invert, monochrome}
@@ -86,9 +87,9 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
     tryOptToTry(new RuntimeException("Could not detect slot"))(result)
   }
 
-  def extractSetName(image: BufferedImage): Try[String] = {
+  def extractSetName(image: BufferedImage): Try[SetName] = {
     val setNameImage = getSetNameSubImage(image)
-    val result = extractRawData(setNameImage).map(ArtifactStringExtractor.extractName)
+    val result = extractRawData(setNameImage).map(ArtifactStringExtractor.extractSetName)
     tryOptToTry(new RuntimeException("Could not set name"))(result)
   }
 

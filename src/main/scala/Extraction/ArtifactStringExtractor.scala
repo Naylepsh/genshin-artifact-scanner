@@ -1,5 +1,7 @@
 package Extraction
 
+import Entities.Artifact.SetName
+import Entities.Artifact.SetName.SetName
 import Entities.Artifact.StatName._
 
 
@@ -22,8 +24,12 @@ object ArtifactStringExtractor {
   def extractInt(string: String): Option[Int] =
     "[0-9]+".r.findFirstIn(string).map(_.toInt)
 
+  def extractSetName(rawData: String): Option[SetName] =
+    extractName(rawData).flatMap(SetName.fromString)
+
   def extractName(rawData: String): Option[String] =
     "[a-zA-Z ]+".r.findFirstIn(rawData).map(_.trim)
+
 
   def extractSubStats(rawData: String): List[(StatName, Double)] = {
     val subStatLines = rawData.split("\n")
