@@ -42,7 +42,7 @@ object ArtifactTesseractCorrector {
       .replaceAll("[tl]", "1")
       .replaceAll("[a]", "4")
       .replaceFirst("HI", "11")
-      .replaceFirst("H", "11")
+      .replaceFirst("[HN]", "11")
       .replaceAll("[I]", "1")
       .replaceAll("[sS]", "5")
   }

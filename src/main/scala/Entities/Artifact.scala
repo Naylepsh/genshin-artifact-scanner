@@ -1,12 +1,12 @@
 package Entities
 
-import Entities.Artifact.StatNames.StatNames
+import Entities.Artifact.StatName.StatName
 
 import scala.io.Source
 import scala.util.{Failure, Try}
 
 case class Artifact(setName: String, slot: String, level: Int, rarity: Int,
-                    mainStat: String, mainStatValue: Double, subStats: Map[StatNames, Double]) {
+                    mainStat: StatName, mainStatValue: Double, subStats: Map[StatName, Double]) {
 }
 
 object Artifact {
@@ -16,7 +16,7 @@ object Artifact {
   private val mainStats = Json.parse(Source.fromResource("mainStats.json").mkString)
 
   def apply(setName: String, slot: String, level: Int, rarity: Int,
-            mainStat: String, subStats: Map[StatNames, Double]): Try[Artifact] = {
+            mainStat: StatName, subStats: Map[StatName, Double]): Try[Artifact] = {
     calcMainStatValue(mainStat, rarity, level) match {
       case Some(mainStatValue) =>
         Artifact(setName, slot, level, rarity, mainStat, mainStatValue, subStats)
@@ -27,7 +27,7 @@ object Artifact {
   }
 
   def apply(setName: String, slot: String, level: Int, rarity: Int,
-            mainStat: String, mainStatValue: Double, subStats: Map[StatNames, Double]): Try[Artifact] = {
+            mainStat: StatName, mainStatValue: Double, subStats: Map[StatName, Double]): Try[Artifact] = {
     val cleanMainStatValue = trimAfterFirstDecimal(mainStatValue)
     val cleanSubStats = subStats.map { case (key, value) => key -> trimAfterFirstDecimal(value) }
     val artifact = new Artifact(setName, slot, level, rarity, mainStat, cleanMainStatValue, cleanSubStats)
@@ -66,9 +66,9 @@ object Artifact {
   private def trimAfterFirstDecimal(value: Double): Double =
     (math floor value * 10) / 10
 
-  def calcMainStatValue(statName: String, rarity: Int, level: Int): Option[Double] = {
+  def calcMainStatValue(statName: StatName, rarity: Int, level: Int): Option[Double] = {
     // There is no 0* rarity, hence why - 1
-    (mainStats \ convertStatName(statName) \ (rarity - 1) \ level).asOpt[Double]
+    (mainStats \ convertStatName(statName.toString) \ (rarity - 1) \ level).asOpt[Double]
   }
 
   private def convertStatName(statName: String): String = {
@@ -79,21 +79,30 @@ object Artifact {
       statName
   }
 
-  object StatNames extends Enumeration {
-    type StatNames = Value
+  object StatName extends Enumeration {
+    type StatName = Value
 
-    val atkFlat: StatNames.Value = Value("ATK")
-    val atkPercent: StatNames.Value = Value("ATK%")
-    val critDmgPercent: StatNames.Value = Value("CRIT DMG%")
-    val critRatePercent: StatNames.Value = Value("CRIT Rate%")
-    val defFlat: StatNames.Value = Value("DEF")
-    val defPercent: StatNames.Value = Value("DEF%")
-    val elementalMastery: StatNames.Value = Value("Elemental Mastery")
-    val energyRechargePercent: StatNames.Value = Value("Energy Recharge%")
-    val hpFlat: StatNames.Value = Value("HP")
-    val hpPercent: StatNames.Value = Value("HP%")
+    val atkFlat: StatName.Value = Value("ATK")
+    val atkPercent: StatName.Value = Value("ATK%")
+    val critDmgPercent: StatName.Value = Value("CRIT DMG%")
+    val critRatePercent: StatName.Value = Value("CRIT Rate%")
+    val defFlat: StatName.Value = Value("DEF")
+    val defPercent: StatName.Value = Value("DEF%")
+    val elementalMastery: StatName.Value = Value("Elemental Mastery")
+    val energyRechargePercent: StatName.Value = Value("Energy Recharge%")
+    val hpFlat: StatName.Value = Value("HP")
+    val hpPercent: StatName.Value = Value("HP%")
+    val electroDamagePercent: StatName.Value = Value("Electro DMG Bonus%")
+    val hydroDamagePercent: StatName.Value = Value("Hydro DMG Bonus%")
+    val pyroDamagePercent: StatName.Value = Value("Pyro DMG Bonus%")
+    val cryoDamagePercent: StatName.Value = Value("Cryo DMG Bonus%")
+    val anemoDamagePercent: StatName.Value = Value("Anemo DMG Bonus%")
+    val geoDamagePercent: StatName.Value = Value("Geo DMG Bonus%")
+    val dendroDamagePercent: StatName.Value = Value("Dendro DMG Bonus%")
+    val physicalDamagePercent: StatName.Value = Value("Physical DMG Bonus%")
+    val healingPercent: Artifact.StatName.Value = Value("Healing Bonus%")
 
-    def fromString(string: String): Option[StatNames.Value] =
+    def fromString(string: String): Option[StatName.Value] =
       values.find(_.toString == string)
   }
 }

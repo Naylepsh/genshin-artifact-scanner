@@ -1,6 +1,6 @@
 package Extraction
 
-import Entities.Artifact.StatNames._
+import Entities.Artifact.StatName._
 import Extraction.ArtifactStringExtractor._
 import Extraction.ArtifactStringExtractorSpec.mkArtifactDescription
 import org.scalactic.{Equality, TolerantNumerics}
@@ -34,10 +34,10 @@ class ArtifactStringExtractorSpec extends AnyFlatSpec with should.Matchers {
 }
 
 object ArtifactStringExtractorSpec {
-  def mkArtifactDescription(stats: List[(StatNames, Float)]): String =
+  def mkArtifactDescription(stats: List[(StatName, Float)]): String =
     Random.shuffle(stats).map(statToStatString).mkString("\n")
 
-  def statToStatString(stat: (StatNames, Float)): String = {
+  def statToStatString(stat: (StatName, Float)): String = {
     val statName = stat._1.toString
     if (statName.endsWith("%"))
       s"${statName.dropRight(1)}+${stat._2}%"

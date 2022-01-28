@@ -1,6 +1,6 @@
 package Extraction
 
-import Entities.Artifact.StatNames._
+import Entities.Artifact.StatName._
 
 
 object ArtifactStringExtractor {
@@ -25,7 +25,7 @@ object ArtifactStringExtractor {
   def extractName(rawData: String): Option[String] =
     "[a-zA-Z ]+".r.findFirstIn(rawData).map(_.trim)
 
-  def extractSubStats(rawData: String): List[(StatNames, Double)] = {
+  def extractSubStats(rawData: String): List[(StatName, Double)] = {
     val subStatLines = rawData.split("\n")
     val flatLines = subStatLines.filter(isFlatStat)
     val percentageLines = subStatLines.filter(isPercentageStat)
@@ -38,7 +38,7 @@ object ArtifactStringExtractor {
 
   def isFlatStat(stat: String): Boolean = !isPercentageStat(stat)
 
-  private def extractSubStat(subStatLines: Iterable[String])(statName: StatNames): Option[(StatNames, Double)] = {
+  private def extractSubStat(subStatLines: Iterable[String])(statName: StatName): Option[(StatName, Double)] = {
     val statSubstring = if (isFlatStat(statName)) statName.toString else statName.toString.dropRight(1)
     subStatLines.find(_.contains(statSubstring))
       .map(extractFirstStatValue) match {

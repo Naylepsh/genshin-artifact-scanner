@@ -4,6 +4,7 @@ import Entities.Artifact
 
 
 object GOODFormat {
+  //  TODO: Convert to map from StatName to String
   private val statNameMap = Map[String, String](
     "HP" -> "hp",
     "HP%" -> "hp_",
@@ -39,7 +40,7 @@ object GOODFormat {
       val slotKey = artifact.slot.split(" ").head.toLowerCase
       val level = artifact.level
       val rarity = artifact.rarity
-      val mainStatKey: String = statNameMap(artifact.mainStat)
+      val mainStatKey: String = statNameMap(artifact.mainStat.toString)
       val location = ""
       val lock = false
       val subStats = artifact.subStats.toList.map {

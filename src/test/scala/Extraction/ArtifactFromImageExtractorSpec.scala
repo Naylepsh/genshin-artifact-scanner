@@ -1,7 +1,7 @@
 package Extraction
 
 import Entities.Artifact
-import Entities.Artifact.StatNames._
+import Entities.Artifact.StatName._
 import Extraction.ArtifactFromImageExtractorSpec._
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec._
@@ -39,7 +39,7 @@ class ArtifactFromImageExtractorSpec extends AnyFlatSpec with should.Matchers {
   "Extract main stat" should "extract exact stat name and value" in {
     val pathToFile = "/artifacts/5-star-4-stats-flower.png"
     val image = getImage(pathToFile)
-    extractor.extractMainStat(image).success.value shouldBe "HP"
+    extractor.extractMainStat(image).success.value shouldBe hpFlat
   }
 
   "Extract rarity" should "extract 5*" in {
@@ -103,7 +103,7 @@ class ArtifactFromImageExtractorSpec extends AnyFlatSpec with should.Matchers {
     val artifact = extractor.extractArtifact(image)
 
     val expectedArtifact = new Artifact(setName = "Lavawalker", slot = "Goblet", level = 4, rarity = 5,
-      mainStat = "Electro DMG Bonus%", mainStatValue = 14.9, subStats = Map(
+      mainStat = electroDamagePercent, mainStatValue = 14.9, subStats = Map(
         hpFlat -> 269,
         defFlat -> 19,
         critDmgPercent -> 7.0f,

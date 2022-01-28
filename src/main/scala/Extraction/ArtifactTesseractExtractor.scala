@@ -2,7 +2,8 @@ package Extraction
 
 import Capture.ScreenCapture.RectangleCoordinates
 import Entities.Artifact
-import Entities.Artifact.StatNames.StatNames
+import Entities.Artifact.StatName
+import Entities.Artifact.StatName.StatName
 import Utils.Image.ImageProcessor.{invert, monochrome}
 
 import java.awt.image.BufferedImage
@@ -54,7 +55,7 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
   private def extractRawData(image: BufferedImage): Try[String] =
     tesseract.doOCR(image)
 
-  def extractMainStat(image: BufferedImage): Try[String] = {
+  def extractMainStat(image: BufferedImage): Try[StatName] = {
     def clean(image: BufferedImage): BufferedImage =
       monochrome(invert(image))
 
@@ -69,6 +70,7 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
         .map(ArtifactTesseractCorrector.correctStatName)
         .map(ArtifactStringExtractor.extractName)
         .map(_.map(attachPercentageIfNeeded(rawData)))
+        .map(_.flatMap(StatName.fromString))
     })
 
     tryOptToTry(new RuntimeException("Could not detect the main stat"))(result)
@@ -112,7 +114,7 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
   def lineContainsColor(image: BufferedImage)(color: Color)(startX: Int, endX: Int, y: Int): Boolean =
     startX to endX exists { x => new Color(image.getRGB(x, y)) == color }
 
-  def extractSubStats(image: BufferedImage): Try[Map[StatNames, Double]] = {
+  def extractSubStats(image: BufferedImage): Try[Map[StatName, Double]] = {
     val subStatsImage = getSubStatsSubImage(image)
     extractRawData(subStatsImage)
       .map(ArtifactTesseractCorrector.correctSubStats)
@@ -159,8 +161,8 @@ object ArtifactTesseractExtractor {
   def getSubImage(image: BufferedImage, coordinates: RectangleCoordinates): BufferedImage =
     image.getSubimage(coordinates.topLeft.x, coordinates.topLeft.y, coordinates.width, coordinates.height)
 
-  def subStatsListToMap(subStats: List[(StatNames, Double)]): Map[StatNames, Double] =
-    subStats.foldLeft(Map[StatNames, Double]())(_ + _)
+  def subStatsListToMap(subStats: List[(StatName, Double)]): Map[StatName, Double] =
+    subStats.foldLeft(Map[StatName, Double]())(_ + _)
 
   private def rgbToRarity(color: Color): Int = {
     def isLow(value: Int): Boolean = value < 60
