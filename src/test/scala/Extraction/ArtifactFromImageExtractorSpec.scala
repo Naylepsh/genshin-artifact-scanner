@@ -1,6 +1,8 @@
 package Extraction
 
-import Artifact.Artifact
+import Entities.Artifact
+import Entities.Artifact.SetName._
+import Entities.Artifact.StatName._
 import Extraction.ArtifactFromImageExtractorSpec._
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec._
@@ -20,25 +22,25 @@ class ArtifactFromImageExtractorSpec extends AnyFlatSpec with should.Matchers {
   "Extract set name" should "extract the name from 4 sub stats artifact" in {
     val pathToFile = "/artifacts/5-star-4-stats-flower.png"
     val image = getImage(pathToFile)
-    extractor.extractSetName(image).success.value shouldBe "Husk of Opulent Dreams"
+    extractor.extractSetName(image).success.value shouldBe huskOfOpulentDreams
   }
 
   "Extract set name" should "extract the name from 3 sub stats artifact" in {
     val pathToFile = "/artifacts/5-star-3-stats-sands.png"
     val image = getImage(pathToFile)
-    extractor.extractSetName(image).success.value shouldBe "Heart of Depth"
+    extractor.extractSetName(image).success.value shouldBe heartOfDepth
   }
 
   "Extract set name" should "extract the name from 2 sub stats artifact" in {
     val pathToFile = "/artifacts/4-star-2-stats-plume.png"
     val image = getImage(pathToFile)
-    extractor.extractSetName(image).success.value shouldBe "Gambler"
+    extractor.extractSetName(image).success.value shouldBe gambler
   }
 
   "Extract main stat" should "extract exact stat name and value" in {
     val pathToFile = "/artifacts/5-star-4-stats-flower.png"
     val image = getImage(pathToFile)
-    extractor.extractMainStat(image).success.value shouldBe "HP"
+    extractor.extractMainStat(image).success.value shouldBe hpFlat
   }
 
   "Extract rarity" should "extract 5*" in {
@@ -101,12 +103,12 @@ class ArtifactFromImageExtractorSpec extends AnyFlatSpec with should.Matchers {
 
     val artifact = extractor.extractArtifact(image)
 
-    val expectedArtifact = new Artifact(setName = "Lavawalker", slot = "Goblet", level = 4, rarity = 5,
-      mainStat = "Electro DMG Bonus%", mainStatValue = 14.9, subStats = Map(
-        "HP" -> 269,
-        "DEF" -> 19,
-        "CRIT DMG%" -> 7.0f,
-        "Elemental Mastery" -> 16
+    val expectedArtifact = new Artifact(setName = lavawalker, slot = "Goblet", level = 4, rarity = 5,
+      mainStat = electroDamagePercent, mainStatValue = 14.9, subStats = Map(
+        hpFlat -> 269,
+        defFlat -> 19,
+        critDmgPercent -> 7.0f,
+        elementalMastery -> 16
       )
     )
     artifact.success.value shouldBe expectedArtifact
@@ -121,5 +123,4 @@ object ArtifactFromImageExtractorSpec {
 
   def getImage(pathToImage: String): BufferedImage =
     ImageIO.read(getClass.getResourceAsStream(pathToImage))
-
 }

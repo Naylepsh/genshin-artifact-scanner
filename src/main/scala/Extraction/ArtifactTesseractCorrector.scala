@@ -1,10 +1,21 @@
 package Extraction
 
-import Extraction.ArtifactStringExtractor.{isFlatStat, subStats}
+import Extraction.ArtifactStringExtractor.{flatSubStats, isFlatStat, percentSubStats}
 
 object ArtifactTesseractCorrector {
+  private val subStats = (flatSubStats ++ percentSubStats).map(_.toString)
+
   def correctLevel(levelRawData: String): String = {
     levelRawData.replaceFirst("117", "17") // Somehow '+' might have gotten recognized as 1
+  }
+
+  def correctSetName(setName: String): String = {
+    setName
+      .replaceAll("’", "'")
+      .replaceAll("'+", "'")
+      .replaceFirst("Miracte", "Miracle")
+      .replaceFirst("sojourner", "Sojourner")
+      .trim
   }
 
   def correctStatName(statName: String): String = {
@@ -40,7 +51,7 @@ object ArtifactTesseractCorrector {
       .replaceAll("[tl]", "1")
       .replaceAll("[a]", "4")
       .replaceFirst("HI", "11")
-      .replaceFirst("H", "11")
+      .replaceFirst("[HN]", "11")
       .replaceAll("[I]", "1")
       .replaceAll("[sS]", "5")
   }

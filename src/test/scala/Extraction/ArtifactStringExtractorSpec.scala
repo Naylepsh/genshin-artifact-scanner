@@ -1,5 +1,6 @@
 package Extraction
 
+import Entities.Artifact.StatName._
 import Extraction.ArtifactStringExtractor._
 import Extraction.ArtifactStringExtractorSpec.mkArtifactDescription
 import org.scalactic.{Equality, TolerantNumerics}
@@ -26,20 +27,21 @@ class ArtifactStringExtractorSpec extends AnyFlatSpec with should.Matchers {
   }
 
   "Extract sub stats" should "pick up all sub stats (including stats with same names but different types)" in {
-    val stats = List(("Energy Recharge%", 11.0f), ("DEF%", 17.9f), ("HP", 1234f), ("HP%", 12.1f))
+    val stats = List((energyRechargePercent, 11.0f), (defPercent, 17.9f), (hpFlat, 1234f), (hpPercent, 12.1f))
     val rawData = mkArtifactDescription(stats)
     extractSubStats(rawData).length shouldBe stats.length
   }
 }
 
 object ArtifactStringExtractorSpec {
-  def mkArtifactDescription(stats: List[(String, Float)]): String =
+  def mkArtifactDescription(stats: List[(StatName, Float)]): String =
     Random.shuffle(stats).map(statToStatString).mkString("\n")
 
-  def statToStatString(stat: (String, Float)): String = {
-    if (stat._1.endsWith("%"))
-      s"${stat._1.dropRight(1)}+${stat._2}%"
+  def statToStatString(stat: (StatName, Float)): String = {
+    val statName = stat._1.toString
+    if (statName.endsWith("%"))
+      s"${statName.dropRight(1)}+${stat._2}%"
     else
-      s"${stat._1}+${stat._2}"
+      s"$statName+${stat._2}"
   }
 }

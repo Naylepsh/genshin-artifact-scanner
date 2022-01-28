@@ -1,8 +1,10 @@
 package Actors
 
 import Actors.ArtifactExtractorActor.{ArtifactExtractionFailure, ArtifactExtractionSuccess, ExtractArtifact}
-import Artifact.Artifact
 import Common.Common.{openImage, pathToExistingArtifact}
+import Entities.Artifact
+import Entities.Artifact.SetName.gambler
+import Entities.Artifact.StatName.atkFlat
 import Extraction.ArtifactFromImageExtractable
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
@@ -36,8 +38,8 @@ class ArtifactExtractorActorSpec extends TestKit(ActorSystem("ArtifactExtractorA
 
     "send back artifact" in {
       val artifact = new Artifact(
-        setName = "Gambler", slot = "Flower", level = 20, rarity = 5,
-        mainStat = "Baz", mainStatValue = 311, subStats = Map()
+        setName = gambler, slot = "Feather", level = 20, rarity = 5,
+        mainStat = atkFlat, mainStatValue = 311, subStats = Map()
       )
       val extractor = SucceedingExtractor(artifact)
       val actor = system.actorOf(ArtifactExtractorActor.props(extractor))

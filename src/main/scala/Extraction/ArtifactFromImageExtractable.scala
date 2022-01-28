@@ -1,6 +1,6 @@
 package Extraction
 
-import Artifact.Artifact
+import Entities.Artifact
 
 import java.awt.image.BufferedImage
 import scala.util.Try
