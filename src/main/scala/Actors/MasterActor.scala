@@ -27,7 +27,7 @@ class MasterActor(scanner: ArtifactScannable, extractors: List[ArtifactFromImage
 
   private val workDir = sys.env("OUTPUT_DIR")
   private val scannerActor = context.actorOf(ArtifactScannerActor.props(scanner))
-  private val itemsNumberCoordinates = RectangleCoordinates(new Point(1685, 30), new Point(1745, 65))
+  private val itemsNumberCoordinates = RectangleCoordinates(new Point(1690, 30), new Point(1745, 65))
   private val extractionQueue = context.actorOf(ExtractionQueue.props(extractors, self, s"$workDir/temp"))
   private val logImage = ImageLogger.log(s"$workDir/logs") _
 

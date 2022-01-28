@@ -119,7 +119,7 @@ case class ArtifactTesseractExtractor(tesseract: TesseractWrapper)
     startX to endX exists { x => new Color(image.getRGB(x, y)) == color }
 
   def extractSubStats(image: BufferedImage): Try[Map[StatName, Double]] = {
-    val subStatsImage = getSubStatsSubImage(image)
+    val subStatsImage = monochrome(getSubStatsSubImage(image), 400)
     extractRawData(subStatsImage)
       .map(ArtifactTesseractCorrector.correctSubStats)
       .map(ArtifactStringExtractor.extractSubStats)

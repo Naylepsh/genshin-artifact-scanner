@@ -1,29 +1,71 @@
 package Formatters
 
 import Entities.Artifact
+import Entities.Artifact.SetName._
+import Entities.Artifact.StatName._
+import Entities.Artifact.{SetName, StatName}
 
 
 object GOODFormat {
-  //  TODO: Convert to map from StatName to String
-  private val statNameMap = Map[String, String](
-    "HP" -> "hp",
-    "HP%" -> "hp_",
-    "ATK" -> "atk",
-    "ATK%" -> "atk_",
-    "DEF" -> "def",
-    "DEF%" -> "def_",
-    "Elemental Mastery" -> "eleMas",
-    "Energy Recharge%" -> "enerRech_",
-    "Healing Bonus%" -> "heal_",
-    "CRIT Rate%" -> "critRate_",
-    "CRIT DMG%" -> "critDMG_",
-    "Physical DMG Bonus%" -> "physical_dmg_",
-    "Anemo DMG Bonus%" -> "anemo_dmg_",
-    "Geo DMG Bonus%" -> "geo_dmg_",
-    "Electro DMG Bonus%" -> "electro_dmg_",
-    "Hydro DMG Bonus%" -> "hydro_dmg_",
-    "Pyro DMG Bonus%" -> "pyro_dmg_",
-    "Cryo DMG Bonus%" -> "cryo_dmg_",
+  private val statNameMap = Map[StatName.Value, String](
+    hpFlat -> "hp",
+    hpPercent -> "hp_",
+    atkFlat -> "atk",
+    atkPercent -> "atk_",
+    defFlat -> "def",
+    defPercent -> "def_",
+    elementalMastery -> "eleMas",
+    energyRechargePercent -> "enerRech_",
+    healingPercent -> "heal_",
+    critRatePercent -> "critRate_",
+    critDmgPercent -> "critDMG_",
+    physicalDamagePercent -> "physical_dmg_",
+    anemoDamagePercent -> "anemo_dmg_",
+    geoDamagePercent -> "geo_dmg_",
+    electroDamagePercent -> "electro_dmg_",
+    hydroDamagePercent -> "hydro_dmg_",
+    pyroDamagePercent -> "pyro_dmg_",
+    cryoDamagePercent -> "cryo_dmg_",
+  )
+
+  private val setNameMap = Map[SetName.Value, String](
+    adventurer -> "Adventurer",
+    archaicPetra -> "ArchaicPetra",
+    berserker -> "Berserker",
+    blizzardStrayer -> "BlizzardStrayer",
+    bloodstainedChivalry -> "BloodstainedChivalry",
+    braveHeart -> "BraveHeart",
+    crimsonWitchOfFlames -> "CrimsonWitchOfFlames",
+    defendersWill -> "DefendersWill",
+    emblemOfSeveredFate -> "EmblemOfSeveredFate",
+    gambler -> "Gambler",
+    gladiatorsFinale -> "GladiatorsFinale",
+    heartOfDepth -> "HeartOfDepth",
+    huskOfOpulentDreams -> "HuskOfOpulentDreams",
+    instructor -> "Instructor",
+    lavawalker -> "Lavawalker",
+    luckyDog -> "LuckyDog",
+    maidenBeloved -> "MaidenBeloved",
+    martialArtist -> "MartialArtist",
+    noblesseOblige -> "NoblesseOblige",
+    oceanHuedClam -> "OceanHuedClam",
+    paleFlame -> "PaleFlame",
+    prayersForDestiny -> "PrayersForDestiny",
+    prayersForIllumination -> "PrayersForIllumination",
+    prayersForWisdom -> "PrayersForWisdom",
+    prayersToSpringtime -> "PrayersToSpringtime",
+    resolutionOfSojourner -> "ResolutionOfSojourner",
+    retracingBolide -> "RetracingBolide",
+    scholar -> "Scholar",
+    shimenawasReminiscence -> "ShimenawasReminiscence",
+    tenacityOfTheMillelith -> "TenacityOfTheMillelith",
+    theExile -> "TheExile",
+    thunderingFury -> "ThunderingFury",
+    thundersoother -> "Thundersoother",
+    tinyMiracle -> "TinyMiracle",
+    travelingDoctor -> "TravelingDoctor",
+    viridescentVenerer -> "ViridescentVenerer",
+    wanderersTroupe -> "WanderersTroupe",
   )
 
   case class GOODSubStat(key: String, value: Double) {}
@@ -36,19 +78,15 @@ object GOODFormat {
 
   object GOODArtifact {
     def apply(artifact: Artifact): GOODArtifact = {
-      val setKey = artifact.setName.toString
-        .replaceAll("'", "")
-        .split(" ")
-        .map(_.capitalize)
-        .mkString("")
+      val setKey = setNameMap(artifact.setName)
       val slotKey = artifact.slot.split(" ").head.toLowerCase
       val level = artifact.level
       val rarity = artifact.rarity
-      val mainStatKey: String = statNameMap(artifact.mainStat.toString)
+      val mainStatKey: String = statNameMap(artifact.mainStat)
       val location = ""
       val lock = false
       val subStats = artifact.subStats.toList.map {
-        case (key, value) => GOODSubStat(statNameMap(key.toString), value)
+        case (key, value) => GOODSubStat(statNameMap(key), value)
       }
 
       new GOODArtifact(setKey, slotKey, level, rarity, mainStatKey, location, lock, subStats)
