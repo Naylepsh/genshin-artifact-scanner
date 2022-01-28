@@ -47,12 +47,14 @@ object ArtifactTesseractCorrector {
      * Sometimes values that should had been fully numeric
      * end up having some of their characters mistakenly identified as letters
      */
+    val possiblyOne = "[])tlI1]"
+
     value
-      .replaceAll("[tl]", "1")
-      .replaceAll("[a]", "4")
       .replaceFirst("HI", "11")
+      .replaceFirst(possiblyOne.repeat(3), "11")
+      .replaceAll(possiblyOne, "1")
       .replaceFirst("[HNW]", "11")
-      .replaceAll("[I]", "1")
+      .replaceAll("[a]", "4")
       .replaceAll("[sS]", "5")
   }
 
@@ -73,7 +75,7 @@ object ArtifactTesseractCorrector {
   private def correctFirstStatValue(rawData: String): String = {
     val valuePattern = "[0-9]+.?[0-9]*".r
     val correctedSubstitute = valuePattern.findFirstIn(rawData)
-      .map(_.replaceFirst(",", ""))
+      .map(_.replaceFirst(",", "."))
       .map(determineDotMeaning)
     correctedSubstitute.map(valuePattern.replaceFirstIn(rawData, _)).getOrElse(rawData)
   }
@@ -81,8 +83,8 @@ object ArtifactTesseractCorrector {
   private def determineDotMeaning(numberString: String): String = {
     /**
      * Artifacts use at most one place after decimal.
-     * If there more were found, then the real separator (,) got mistakenly classified as (.),
-     * and the following fixes such mistake
+     * If there more were found, then the real separator (,) got mistakenly classified as (.).
+     * The following fixes such mistakes
      */
     val placesAfterDecimal = numberString.replaceFirst(".+[.]", "").length
     val maxDecimalPlacesUsedByArtifacts = 1

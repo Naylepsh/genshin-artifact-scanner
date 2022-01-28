@@ -4,27 +4,17 @@ import java.awt.Color
 import java.awt.image.BufferedImage
 
 object ImageProcessor {
-  def monochrome(image: BufferedImage): BufferedImage =
-    alter(image)(monochrome)
+  def monochrome(image: BufferedImage, threshold: Int = 300): BufferedImage =
+    alter(image)(monochrome(threshold))
 
-  private def monochrome(color: Color): Color = {
-    val monoThreshold = 300
+  private def monochrome(threshold: Int)(color: Color): Color = {
     val black = new Color(0, 0, 0)
     val white = new Color(255, 255, 255)
 
-    if (color.getRed + color.getGreen + color.getBlue > monoThreshold)
+    if (color.getRed + color.getGreen + color.getBlue > threshold)
       white
     else
       black
-  }
-
-  def invert(image: BufferedImage): BufferedImage =
-    alter(image)(invert)
-
-  private def invert(color: Color): Color = {
-    new Color(255 - color.getRed,
-      255 - color.getGreen,
-      255 - color.getBlue)
   }
 
   private def alter(image: BufferedImage)(alterColor: Color => Color): BufferedImage = {
@@ -39,5 +29,14 @@ object ImageProcessor {
     }
 
     resultingImage
+  }
+
+  def invert(image: BufferedImage): BufferedImage =
+    alter(image)(invert)
+
+  private def invert(color: Color): Color = {
+    new Color(255 - color.getRed,
+      255 - color.getGreen,
+      255 - color.getBlue)
   }
 }
