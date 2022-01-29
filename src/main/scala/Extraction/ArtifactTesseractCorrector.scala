@@ -47,15 +47,13 @@ object ArtifactTesseractCorrector {
      * Sometimes values that should had been fully numeric
      * end up having some of their characters mistakenly identified as letters
      */
-    val possiblyOne = "[])tlI1]"
-
     value
       .replaceFirst("HI", "11")
-      .replaceFirst(possiblyOne.repeat(3), "11")
-      .replaceAll(possiblyOne, "1")
+      .replaceAll("[])tlI1]", "1")
       .replaceFirst("[HNW]", "11")
       .replaceAll("[a]", "4")
       .replaceAll("[sS]", "5")
+      .replaceFirst("11(.[.])", "1$1") // No % value on artifact is greater than 100%
   }
 
   private def correctSeparator(statLine: String): String = {
