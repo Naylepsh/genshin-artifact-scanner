@@ -54,6 +54,7 @@ object ArtifactTesseractCorrector {
       .replaceAll("[a]", "4")
       .replaceAll("[sS]", "5")
       .replaceFirst("11(.[.])", "1$1") // No % value on artifact is greater than 100%
+      .replaceFirst("^1[.]([0-9][^0-9])", "11.$1") // If a value looks like 1.x, then one 1 got lost
   }
 
   private def correctSeparator(statLine: String): String = {
