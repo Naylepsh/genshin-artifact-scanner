@@ -30,15 +30,15 @@ object ArtifactStringExtractor {
   def extractName(rawData: String): Option[String] =
     "[a-zA-Z' -]+".r.findFirstIn(rawData).map(_.trim)
 
-
   def extractSubStats(rawData: String): List[(StatName, Double)] = {
     val subStatLines = rawData.split("\n")
+
     val flatLines = subStatLines.filter(isFlatStat)
-    val percentageLines = subStatLines.filter(isPercentageStat)
-
-
     val matchedFlats = flatSubStats.flatMap(extractSubStat(flatLines))
+
+    val percentageLines = subStatLines.filter(isPercentageStat)
     val matchedPercentages = percentSubStats.flatMap(extractSubStat(percentageLines))
+
     matchedFlats ++ matchedPercentages
   }
 
